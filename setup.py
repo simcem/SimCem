@@ -1,10 +1,11 @@
 import os
 import re
 import sys
+import sysconfig
 import platform
 import subprocess
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
@@ -66,14 +67,16 @@ setup(
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/toastedcrumpets",
-    ext_modules=[
-        CMakeExtension('core')
-    ],
-    cmdclass=dict(build_ext=CMakeBuild),
-    zip_safe=False,
     classifiers=[
         "Programming Language :: C++",
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Operating System :: OS Independent",
     ],
+    packages=find_packages('pysrc'),
+    package_dir={"":"pysrc"},
+    ext_modules=[
+        CMakeExtension('simcem.core')
+    ],
+    cmdclass=dict(build_ext=CMakeBuild),
+    zip_safe=False,
 )
