@@ -6,14 +6,17 @@ class CoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.db = Database("free_database.xml")
+
+    def check_reprloop(self, item):
+        #Check the repr and constructor is correctly implemented
+        r = repr(item)
+        self.assertEqual(repr(eval(r)), r)
         
     def test_Isotope(self):
-        r = repr(self.db.getElements()["H"][0])
-        #Check the repr is correctly implemented
-        self.assertEqual(repr(eval(r)), r)
+        self.check_reprloop(self.db.getElements()["H"][0])
 
     def test_Element(self):
-        pass
+        self.check_reprloop(self.db.getElements()["H"])
     
 
 ###!/usr/bin/python3

@@ -261,6 +261,15 @@ namespace simcem {
   struct Element : public std::vector<Isotope>, Isotope {
     typedef std::vector<Isotope> Base;
     
+    Element(size_t Z, size_t N, double mass, double mass_uncertainty, double abundance, std::string symbol, std::string name, std::string category, Base isotopes, size_t group, size_t period, std::string block="", std::string referenceComponentID=""):
+      Isotope(Z, N, mass, mass_uncertainty, abundance, symbol, name, category),
+      Base(isotopes),
+      _group(group),
+      _period(period),
+      _block(block),
+      _referenceComponentID(referenceComponentID)
+    {}
+    
     Element(Node xml):
       Isotope(xml, xml.getAttribute("Symbol"), xml.getAttribute("Name"), xml.getAttribute("Category")),
       _group(xml.getAttribute("Group").as<size_t>()),
@@ -298,10 +307,6 @@ namespace simcem {
       }
     }
 
-    operator std::string() const {
-      return "Element(" + _symbol + ")";
-    }
-    
     /*! 
       @name Periodic table data
       @{*/

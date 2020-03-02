@@ -53,8 +53,8 @@ PYBIND11_MODULE(core, m)
     ;
   
   py::class_<simcem::Element, simcem::Isotope, std::vector<Isotope> >(m, "Element")
-    .def("__repr__", &Element::operator std::string)
-    .def_readwrite("reference_molecule", &Element::_referenceComponentID)
+    .def(py::init<size_t, size_t, double, double, double, std::string, std::string, std::string, IsotopeList, size_t, size_t, std::string, std::string>(), py::arg("Z"), py::arg("N"), py::arg("mass"), py::arg("mass_uncertainty"), py::arg("abundance"), py::arg("symbol"), py::arg("name"), py::arg("category"), py::arg("isotopes"), py::arg("group"), py::arg("period"), py::arg("block")="", py::arg("referenceComponentID")="")
+    .def_readwrite("referenceComponentID", &Element::_referenceComponentID)
     .def_readwrite("group", &Element::_group)
     .def_readwrite("period", &Element::_period)
     .def_readwrite("block", &Element::_block)
