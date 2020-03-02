@@ -6,7 +6,8 @@ class DatabaseTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.db = simcem.Database("free_database.xml")
-
+        print(cls.db)
+        
     def test_load(self):
         pass
 
