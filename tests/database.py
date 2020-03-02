@@ -1,16 +1,20 @@
 import unittest
 
-import simcem
+from simcem import *
 
-class DatabaseTest(unittest.TestCase):
+class CoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.db = simcem.Database("free_database.xml")
-        print(cls.db)
+        cls.db = Database("free_database.xml")
         
-    def test_load(self):
-        pass
+    def test_Isotope(self):
+        r = repr(self.db.getElements()["H"][0])
+        #Check the repr is correctly implemented
+        self.assertEqual(repr(eval(r)), r)
 
+    def test_Element(self):
+        pass
+    
 
 ###!/usr/bin/python3
 ##from pysimcem import *

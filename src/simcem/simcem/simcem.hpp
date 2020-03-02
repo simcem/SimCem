@@ -214,6 +214,10 @@ namespace simcem {
 
   /*! \brief Data structure for an isotope of a particular element. */
   struct Isotope {
+    Isotope(size_t Z, size_t N, double mass, double mass_uncertainty, double abundance, std::string symbol, std::string name, std::string category):
+      _Z(Z), _N(N), _mass(mass), _mass_uncertainty(mass_uncertainty), _abundance(abundance), _symbol(symbol), _name(name), _category(category)
+    {}
+    
     Isotope(Node xml, std::string symbol, std::string name, std::string category):
       _Z(xml.getAttribute("Z").as<size_t>()),
       _N(xml.getAttribute("N").as<size_t>()),
