@@ -29,6 +29,7 @@ class CoreTest(unittest.TestCase):
     def test_Components(self):
         A = Components({"CH4":1.0, "O2":1.0})
         B = Components({"CO2":3.0, "O2":1.0, "NH3":0})
+        self.assertEqual(A, Components(A.as_dict()))
         self.check_reprloop(B)
         C = A+B
         C.removeSmallComponents(0.01);

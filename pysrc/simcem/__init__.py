@@ -12,3 +12,5 @@ Components.__str__ = Components.__repr__
 
 ####
 Database.__str__ = lambda s: 'Database('+str(len(s.getElements()))+' elements, '+str(len(s.getComponents()))+' components)'
+
+Components.as_dict = lambda s: dict(s.items())

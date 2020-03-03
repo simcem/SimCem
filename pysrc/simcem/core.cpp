@@ -17,6 +17,11 @@ PYBIND11_MAKE_OPAQUE(ComponentMap)
 typedef std::vector<simcem::Isotope> IsotopeList;
 PYBIND11_MAKE_OPAQUE(IsotopeList)
 
+typedef std::vector<simcem::Component::Property> PropertyList;
+PYBIND11_MAKE_OPAQUE(PropertyList)
+
+PYBIND11_MAKE_OPAQUE(simcem::Component::PropertyMap)
+
 Components init_from_dict(py::dict d) {
   Components retval;
   for (auto item : d)
@@ -31,12 +36,40 @@ Components init_from_dict(py::dict d) {
   return retval;
 }
 
+py::list solveCubic(double A, double B, double C, double D) {
+  using namespace sym;
+  Polynomial<1> x{0, 1};
+  auto roots = solve_real_roots(expand(A * x*x*x + B * x*x + C * x + D));
+  py::list retval;
+  for (const auto& root : roots)
+    retval.append(root);
+  return retval;
+}
+
+template<class T, class M>
+py::class_<T> registerEnum(M& m, std::string name) {
+  auto e = py::class_<T>(m, name.c_str())
+    .def("__str__", &T::operator std::string)
+    .def("__repr__", &T::operator std::string)
+    .def("__int__", &T::operator int)
+    .def(py::self == py::self)
+    ;
+  
+  for (size_t i(0); i < T::size(); ++i)
+    e.attr(T::strings[i]) = T(i);
+
+  return e;
+}
+
 
 PYBIND11_MODULE(core, m)
 {
+  m.def("solveCubic", solveCubic);
+
   py::bind_map<ElementMap>(m, "ElementMap");
   py::bind_map<ComponentMap>(m, "ComponentMap");
   py::bind_vector<IsotopeList>(m, "IsotopeList");
+  py::bind_vector<PropertyList>(m, "PropertyList");
   
   py::class_<simcem::Database, std::shared_ptr<simcem::Database> >(m, "Database")
     .def(py::init(&Database::create))
@@ -93,8 +126,85 @@ PYBIND11_MODULE(core, m)
     .def(py::self / double())
     .def(py::self == py::self)
     .def(py::self != py::self)
-    //.def("as_dict", Components_to_python_dict)
     ;
 
-  //def("MassToMoles", &Components::fromMasses);
+  m.def("MassToMoles", &Components::fromMasses);
+
+  py::class_<sym::Expr>(m, "Expr")
+    .def(py::init<std::string>())
+    .def(py::init<int>())
+    .def(py::init<double>())
+    .def("__repr__", +[](const sym::Expr& self) { return stator::repr(self); })
+    .def("__str__", +[](const sym::Expr& self) { return stator::repr(self); })
+    .def("latex", +[](const sym::Expr& self) { return stator::repr<stator::ReprConfig<stator::Latex_output> >(self); })
+    .def("simplify", +[](const sym::Expr& self) { return sym::simplify(self); })
+    .def("__add__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l+r); })
+    .def("__radd__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l+r); })
+    .def("__sub__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l-r); })
+    .def("__rsub__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l-r); })
+    .def("__mul__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l*r); })
+    .def("__rmul__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l*r); })
+    .def("__div__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l/r); })
+    .def("__rdiv__", +[](const sym::Expr& l, const sym::Expr& r) { return sym::Expr(l/r); })
+    .def(py::self / py::self)
+    ;
+
+  py::implicitly_convertible<int, sym::Expr>();
+  py::implicitly_convertible<double, sym::Expr>();
+
+  {
+    double (Data::*normalise_units_overload1)(Objective_t variable, double value) const = &Data::normalise_units;
+    double (Data::*restore_units_overload1)(Objective_t variable, double value) const = &Data::restore_units;
+    std::string (Data::*LaTeX_units_overload1)(Objective_t variable) const = &Data::LaTeX_units;
+    double (Data::*normalise_units_overload2)(Property_t variable, double value) const = &Data::normalise_units;
+    double (Data::*restore_units_overload2)(Property_t variable, double value) const = &Data::restore_units;
+    std::string (Data::*LaTeX_units_overload2)(Property_t variable) const = &Data::LaTeX_units;
+
+    py::class_<Data>(m, "Data")
+      .def(py::init<>())
+      .def("normalise_units", normalise_units_overload1)
+      .def("restore_units", restore_units_overload1)
+      .def("LaTeX_units", LaTeX_units_overload1)
+      .def("normalise_units", normalise_units_overload2)
+      .def("restore_units", restore_units_overload2)
+      .def("LaTeX_units", LaTeX_units_overload2)
+      ;
+
+    py::class_<Data::Comment>(m, "Comment")
+      .def_readonly("src", &Data::Comment::_src)
+      .def_readonly("text", &Data::Comment::_text)
+      ;
+  }
+
+  py::class_<Component::Property, Data>(m, "Property")
+    .def(py::init<Property_t, double, std::string>())
+    .def_property_readonly("value", &Component::Property::getValue)
+    .def_property_readonly("orig_value", &Component::Property::getOrigValue)
+    .def_property_readonly("type", &Component::Property::getType)
+    .def_property_readonly("source", &Component::Property::getSource)
+    ;
+
+  registerEnum<simcem::Objective_t>(m, "Objective_t");
+  registerEnum<simcem::Reference_t>(m, "Reference_t");
+  registerEnum<simcem::Property_t>(m, "Property_t");
+  registerEnum<simcem::T_unit_t>(m, "T_unit_t")
+    .def("scale", &simcem::T_unit_t::scale)
+    .def("origin", &simcem::T_unit_t::origin)
+    ;
+  registerEnum<simcem::Q_unit_t>(m, "Q_unit_t")
+    .def("scale", &simcem::Q_unit_t::scale)
+    ;
+
+  registerEnum<simcem::E_unit_t>(m, "E_unit_t")
+    .def("scale", &simcem::E_unit_t::scale)
+    ;
+  
+  registerEnum<simcem::P_unit_t>(m, "P_unit_t")
+    .def("scale", &simcem::P_unit_t::scale)
+    ;
+
+  registerEnum<simcem::L_unit_t>(m, "L_unit_t")
+    .def("scale", &simcem::L_unit_t::scale)
+    ;
+
 }
