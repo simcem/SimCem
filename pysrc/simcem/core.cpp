@@ -7,7 +7,7 @@ using namespace pybind11::literals;
 
 using namespace simcem;
 
-
+// Get all of the opaque containers defined
 typedef std::unordered_map<std::string, simcem::Element> ElementMap;
 PYBIND11_MAKE_OPAQUE(ElementMap)
 
@@ -16,6 +16,21 @@ PYBIND11_MAKE_OPAQUE(ComponentMap)
 
 typedef std::vector<simcem::Isotope> IsotopeList;
 PYBIND11_MAKE_OPAQUE(IsotopeList)
+
+Components init_from_dict(py::dict d) {
+  Components retval;
+  for (auto item : d)
+    if (!py::isinstance<py::str>(item.first))
+      throw pybind11::key_error();
+    else if (py::isinstance<py::float_>(item.second))
+      retval[item.first.cast<std::string>()] = item.second.cast<double>();
+    else if (py::isinstance<py::int_>(item.second))
+      retval[item.first.cast<std::string>()] = item.second.cast<double>();
+    else
+      throw pybind11::value_error();
+  return retval;
+}
+
 
 PYBIND11_MODULE(core, m)
 {
@@ -59,5 +74,27 @@ PYBIND11_MODULE(core, m)
     .def_readwrite("period", &Element::_period)
     .def_readwrite("block", &Element::_block)
     ;
-  
+
+  py::bind_map<Components>(m, "Components")
+    .def(py::init(&init_from_dict))
+    .def("N", &Components::N)
+    .def("M", &Components::M)
+    .def("m", &Components::m)
+    .def("removeSmallComponents", &Components::removeSmallComponents)
+    .def("elements", &Components::elements)
+    .def("ref_elements", &Components::ref_elements)
+    .def("normalised", &Components::normalised)
+    .def(py::self + py::self)
+    .def(py::self - py::self)
+    .def(py::self += py::self)
+    .def(py::self -= py::self)
+    .def(py::self * double())
+    .def(double() * py::self)
+    .def(py::self / double())
+    .def(py::self == py::self)
+    .def(py::self != py::self)
+    //.def("as_dict", Components_to_python_dict)
+    ;
+
+  //def("MassToMoles", &Components::fromMasses);
 }

@@ -1,8 +1,16 @@
 import unittest
+import time
 
 from simcem import *
 
 class CoreTest(unittest.TestCase):
+    def setUp(self):
+        self.startTime = time.time()
+
+    def tearDown(self):
+        t = time.time() - self.startTime
+        print("%s: %.3fms" % (self.id(), t*1000))
+    
     @classmethod
     def setUpClass(cls):
         cls.db = Database("free_database.xml")
@@ -17,34 +25,31 @@ class CoreTest(unittest.TestCase):
 
     def test_Element(self):
         self.check_reprloop(self.db.getElements()["H"])
+
+    def test_Components(self):
+        A = Components({"CH4":1.0, "O2":1.0})
+        B = Components({"CO2":3.0, "O2":1.0, "NH3":0})
+        self.check_reprloop(B)
+        C = A+B
+        C.removeSmallComponents(0.01);
+        C = C * 10.0
+        C = 5 * C
+        C = C / 5.0
+        C_exact = Components({"CH4":10.0, "O2":20.0, "CO2":30.0})
+        self.assertEqual(C, C_exact)
+        self.assertEqual(C.N(), 60.0)
+        self.assertAlmostEqual(Components({"O2":1}).m(self.db), 0.032, places=5)
+
+    #def test_Database(self):
+        #print(self.db)
     
 
 ###!/usr/bin/python3
 ##from pysimcem import *
 ##import unittest
-##import time
 ##
 ##
 ##class TestSimCem(unittest.TestCase):
-##    def setUp(self):
-##        self.startTime = time.time()
-##
-##    def tearDown(self):
-##        t = time.time() - self.startTime
-##        print("%s: %.3fms" % (self.id(), t*1000))
-##
-##    def test_component_math(self):
-##        A = Components({"CH4":1.0, "O2":1.0})
-##        B = Components({"CO2":3.0, "O2":1.0, "NH3":0})
-##        C = A+B
-##        C.removeSmallComponents(0.01);
-##        C = C * 10.0
-##        C = 5 * C
-##        C = C / 5.0
-##        C_exact = Components({"CH4":10.0, "O2":20.0, "CO2":30.0})
-##        self.assertEqual(C, C_exact)
-##        self.assertEqual(C.N(), 60.0)
-##        self.assertAlmostEqual(Components({"O2":1}).m(db), 0.032, places=5)
 ##
 ##    def test_phase_properties(self):
 ##        phase1 = ModelIdealGasTp(db, Components({"CO2":1.0}), 298.15, 1.01325e5) 
