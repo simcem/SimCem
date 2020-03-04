@@ -75,27 +75,57 @@ std::string xmlstring(const T& t) {
   return os.str();
 }
 
-class PyModel : public simcem::Model {
+//This provides the overloads for concrete classes that have
+//overloaded Model's pure virtual functions
+template<class ModelBase>
+class PyModel : public ModelBase {
+public:
+  using ModelBase::ModelBase;
+
+  Objective_t Y(size_t idx) const override { PYBIND11_OVERLOAD(Objective_t, ModelBase, Y, idx); }
+  double p() const override { PYBIND11_OVERLOAD(double, ModelBase, p, ); }
+  double T() const override { PYBIND11_OVERLOAD(double, ModelBase, T, ); }
+  double v(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, v, molID); }
+  double V() const override { PYBIND11_OVERLOAD_PURE(double, ModelBase, V, ); }
+  double s(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, s, molID); }
+  double chemPot(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, chemPot, molID); }
+  double h(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, h, molID); }
+  double u(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, u, molID); }
+  double a(std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, a, molID); }
+  double Cp() const override { PYBIND11_OVERLOAD(double, ModelBase, Cp, ); }
+  double Alpha() const override { PYBIND11_OVERLOAD(double, ModelBase, Alpha, ); }
+  double Beta() const override { PYBIND11_OVERLOAD(double, ModelBase, Beta, ); }
+  std::string str() const override { PYBIND11_OVERLOAD(std::string, ModelBase, str, ); }
+  double dfdT(Objective_t obj) const override { PYBIND11_OVERLOAD(double, ModelBase, dfdT, obj); }
+  double dfdY2(Objective_t obj) const override { PYBIND11_OVERLOAD(double, ModelBase, dfdY2, obj); }
+  double dfdNi(Objective_t obj, std::string molID) const override { PYBIND11_OVERLOAD(double, ModelBase, dfdNi, obj, molID); }
+  void set(Objective_t val, double target, Objective_t constant) override { PYBIND11_OVERLOAD(void, ModelBase, set, val, target, constant); }
+};
+
+//This specialisation is for the pure virtual methods of the Model base class
+template<>
+class PyModel<Model> : public Model {
+public:
   using Model::Model;
 
-  Objective_t Y(size_t idx) const override { PYBIND11_OVERLOAD_PURE(Objective_t, simcem::Model, Y, idx); }
-  double p() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, p, ); }
-  double T() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, T, ); }
-  double v(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, v, molID); }
-  double V() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, V, ); }
-  double s(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, s, molID); }
-  double chemPot(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, chemPot, molID); }
-  double h(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, h, molID); }
-  double u(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, u, molID); }
-  double a(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, a, molID); }
-  double Cp() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Cp, ); }
-  double Alpha() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Alpha, ); }
-  double Beta() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Beta, ); }
-  std::string str() const override { PYBIND11_OVERLOAD_PURE(std::string, simcem::Model, str, ); }
-  double dfdT(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdT, obj); }
-  double dfdY2(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdY2, obj); }
-  double dfdNi(Objective_t obj, std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdNi, obj, molID); }
-  void set(Objective_t val, double target, Objective_t constant) override { PYBIND11_OVERLOAD_PURE(void, simcem::Model, set, val, target, constant); }
+  Objective_t Y(size_t idx) const override { PYBIND11_OVERLOAD_PURE(Objective_t, Model, Y, idx); }
+  double p() const override { PYBIND11_OVERLOAD_PURE(double, Model, p, ); }
+  double T() const override { PYBIND11_OVERLOAD_PURE(double, Model, T, ); }
+  double v(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, v, molID); }
+  double V() const override { PYBIND11_OVERLOAD_PURE(double, Model, V, ); }
+  double s(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, s, molID); }
+  double chemPot(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, chemPot, molID); }
+  double h(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, h, molID); }
+  double u(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, u, molID); }
+  double a(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, a, molID); }
+  double Cp() const override { PYBIND11_OVERLOAD_PURE(double, Model, Cp, ); }
+  double Alpha() const override { PYBIND11_OVERLOAD_PURE(double, Model, Alpha, ); }
+  double Beta() const override { PYBIND11_OVERLOAD_PURE(double, Model, Beta, ); }
+  std::string str() const override { PYBIND11_OVERLOAD_PURE(std::string, Model, str, ); }
+  double dfdT(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, Model, dfdT, obj); }
+  double dfdY2(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, Model, dfdY2, obj); }
+  double dfdNi(Objective_t obj, std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, Model, dfdNi, obj, molID); }
+  void set(Objective_t val, double target, Objective_t constant) override { PYBIND11_OVERLOAD_PURE(void, Model, set, val, target, constant); }
 };
 
 
@@ -127,7 +157,7 @@ PYBIND11_MODULE(core, m)
     .def_readwrite("steffanBoltzmannConstant", &Database::steffanBoltzmannConstant)
     .def_readwrite("g", &Database::g)
     .def_property_readonly("R", &Database::R)
-   ;
+    ;
 
   py::class_<simcem::Isotope>(m, "Isotope")
     .def(py::init<size_t, size_t, double, double, double, std::string, std::string, std::string>(), py::arg("Z"), py::arg("N"), py::arg("mass"), py::arg("mass_uncertainty"), py::arg("abundance"), py::arg("symbol"), py::arg("name"), py::arg("category"))
@@ -350,7 +380,7 @@ PYBIND11_MODULE(core, m)
     .def_property("comments", &Phase::getComments, &Phase::setComments)
     ;
 
-  py::class_<Model, Components, PyModel, shared_ptr<Model>>(m, "Model")
+  py::class_<Model, Components, PyModel<Model>, shared_ptr<Model>>(m, "Model")
     //Virtual functions
     .def("Y", &Model::Y)
     .def("p", &Model::p)
@@ -388,4 +418,61 @@ PYBIND11_MODULE(core, m)
     .def("hasData", &Model::hasData)
     ;
   
+  py::class_<ModelExcess, PyModel<ModelExcess>, Model, shared_ptr<ModelExcess>>(m, "ModelExcess")
+    .def(py::init<shared_ptr<Model>>())
+    ;
+
+  py::class_<ModelIdealGasTp, PyModel<ModelIdealGasTp>, Model, shared_ptr<ModelIdealGasTp>>(m, "ModelIdealGasTp")
+    .def(py::init<shared_ptr<Database>, Components, double, double>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5)
+    ;
+
+  py::class_<ModelIdealGasTV, PyModel<ModelIdealGasTV>, Model, shared_ptr<ModelIdealGasTV>>(m, "ModelIdealGasTV")
+    .def(py::init<shared_ptr<Database>, Components, double, double>(),py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("V"))
+    ;
+
+  py::class_<ModelIncompressible, PyModel<ModelIncompressible>, Model, shared_ptr<ModelIncompressible>>(m, "ModelIncompressible")
+    .def(py::init<shared_ptr<Database>, Components, double, double, std::string, bool>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5, py::arg("type")="solid", py::arg("mixing")=false)
+    ;
+
+  py::class_<ModelIncompressibleSolid, PyModel<ModelIncompressibleSolid>, Model, shared_ptr<ModelIncompressibleSolid>>(m, "ModelIncompressibleSolid")
+    .def(py::init<shared_ptr<Database>, Components, double, double>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5)
+    ;
+
+  py::class_<ModelIncompressibleLiquid, PyModel<ModelIncompressibleLiquid>, Model, shared_ptr<ModelIncompressibleLiquid>>(m, "ModelIncompressibleLiquid")
+    .def(py::init<shared_ptr<Database>, Components, double, double>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5)
+    ;
+
+  
+  py::bind_vector<MultiPhase>(m, "MultiPhase")
+    .def("T", &MultiPhase::T)
+    .def("N", &MultiPhase::T)
+    .def("p", &MultiPhase::p)
+    .def("M", &MultiPhase::M)
+    .def("G", &MultiPhase::G)
+    .def("H", &MultiPhase::H)
+    .def("U", &MultiPhase::U)
+    .def("V", &MultiPhase::V)
+    .def("S", &MultiPhase::S)
+    .def("A", &MultiPhase::A)
+    .def("Cp", &MultiPhase::Cp)
+    .def("Alpha", &MultiPhase::Alpha)
+    .def("Beta", &MultiPhase::Beta)
+    ;
+
+
+  py::enum_<System::Optimiser_t>(m, "Optimiser_t")
+    .value("SLSQP", System::Optimiser_t::SLSQP)
+    .value("NelderMead", System::Optimiser_t::NelderMead)
+    .value("IPopt", System::Optimiser_t::IPopt)
+    ;
+
+  py::class_<System, MultiPhase>(m, "System")
+    .def(py::init<Objective_t, Objective_t, bool, System::Optimiser_t, double, size_t, bool, bool, bool>(), py::arg("Y1"), py::arg("Y2"), py::arg("reactive")=false, py::arg("alg")=System::Optimiser_t::IPopt, py::arg("molarConstraintTol")=1e-8, py::arg("max_eval")=100, py::arg("debug")=false, py::arg("scale_problem")=true, py::arg("rank_reduce_constraints")=true)
+    .def("__repr__", &System::str)
+    .def("__str__", &System::str)
+    .def("equilibrate", &System::equilibrate, py::arg("Y1init") =HUGE_VAL, py::arg("Y2init") =HUGE_VAL)
+    .def("setEnsemble", &System::setEnsemble)
+    ;
+  
+  m.def("NASA_transport", simcem::trans::NASA_transport);
 }
