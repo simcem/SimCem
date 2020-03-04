@@ -20,7 +20,10 @@ PYBIND11_MAKE_OPAQUE(IsotopeList)
 typedef std::vector<simcem::Component::Property> PropertyList;
 PYBIND11_MAKE_OPAQUE(PropertyList)
 
-PYBIND11_MAKE_OPAQUE(simcem::Component::PropertyMap)
+PYBIND11_MAKE_OPAQUE(std::vector<FunctionCurve::ShomateTerm>)
+PYBIND11_MAKE_OPAQUE(std::vector<Bond>)
+PYBIND11_MAKE_OPAQUE(std::vector<Atom>)
+PYBIND11_MAKE_OPAQUE(std::vector<TabulatedCurve::Datum>)
 
 Components init_from_dict(py::dict d) {
   Components retval;
@@ -62,6 +65,40 @@ py::class_<T> registerEnum(M& m, std::string name) {
 }
 
 
+template<class T>
+std::string xmlstring(const T& t) {
+  std::ostringstream os;
+  stator::xml::Document doc;
+  stator::xml::Node root = doc.add_node("Root");
+  t.xml(root);
+  root.firstNode().print(os);
+  return os.str();
+}
+
+class PyModel : public simcem::Model {
+  using Model::Model;
+
+  Objective_t Y(size_t idx) const override { PYBIND11_OVERLOAD_PURE(Objective_t, simcem::Model, Y, idx); }
+  double p() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, p, ); }
+  double T() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, T, ); }
+  double v(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, v, molID); }
+  double V() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, V, ); }
+  double s(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, s, molID); }
+  double chemPot(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, chemPot, molID); }
+  double h(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, h, molID); }
+  double u(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, u, molID); }
+  double a(std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, a, molID); }
+  double Cp() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Cp, ); }
+  double Alpha() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Alpha, ); }
+  double Beta() const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, Beta, ); }
+  std::string str() const override { PYBIND11_OVERLOAD_PURE(std::string, simcem::Model, str, ); }
+  double dfdT(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdT, obj); }
+  double dfdY2(Objective_t obj) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdY2, obj); }
+  double dfdNi(Objective_t obj, std::string molID) const override { PYBIND11_OVERLOAD_PURE(double, simcem::Model, dfdNi, obj, molID); }
+  void set(Objective_t val, double target, Objective_t constant) override { PYBIND11_OVERLOAD_PURE(void, simcem::Model, set, val, target, constant); }
+};
+
+
 PYBIND11_MODULE(core, m)
 {
   m.def("solveCubic", solveCubic);
@@ -70,6 +107,10 @@ PYBIND11_MODULE(core, m)
   py::bind_map<ComponentMap>(m, "ComponentMap");
   py::bind_vector<IsotopeList>(m, "IsotopeList");
   py::bind_vector<PropertyList>(m, "PropertyList");
+  py::bind_vector<std::vector<FunctionCurve::ShomateTerm>>(m, "ShomateTerms");
+  py::bind_vector<std::vector<Bond>>(m, "BondList");
+  py::bind_vector<std::vector<Atom>>(m, "AtomList");
+  py::bind_vector<std::vector<TabulatedCurve::Datum>>(m, "TabulatedCurveList");
   
   py::class_<simcem::Database, std::shared_ptr<simcem::Database> >(m, "Database")
     .def(py::init(&Database::create))
@@ -108,7 +149,7 @@ PYBIND11_MODULE(core, m)
     .def_readwrite("block", &Element::_block)
     ;
 
-  py::bind_map<Components>(m, "Components")
+  py::bind_map<Components, shared_ptr<Components>>(m, "Components")
     .def(py::init(&init_from_dict))
     .def("N", &Components::N)
     .def("M", &Components::M)
@@ -160,7 +201,7 @@ PYBIND11_MODULE(core, m)
     double (Data::*restore_units_overload2)(Property_t variable, double value) const = &Data::restore_units;
     std::string (Data::*LaTeX_units_overload2)(Property_t variable) const = &Data::LaTeX_units;
 
-    py::class_<Data>(m, "Data")
+    py::class_<Data, shared_ptr<Data>>(m, "Data")
       .def(py::init<>())
       .def("normalise_units", normalise_units_overload1)
       .def("restore_units", restore_units_overload1)
@@ -176,7 +217,7 @@ PYBIND11_MODULE(core, m)
       ;
   }
 
-  py::class_<Component::Property, Data>(m, "Property")
+  py::class_<Component::Property, Data, std::shared_ptr<Component::Property>>(m, "Property")
     .def(py::init<Property_t, double, std::string>())
     .def_property_readonly("value", &Component::Property::getValue)
     .def_property_readonly("orig_value", &Component::Property::getOrigValue)
@@ -207,4 +248,144 @@ PYBIND11_MODULE(core, m)
     .def("scale", &simcem::L_unit_t::scale)
     ;
 
+  py::class_<simcem::Curve, simcem::Data, shared_ptr<simcem::Curve>>(m, "Curve")
+    .def("inRange", &Curve::inRange)
+    .def("xmin", &Curve::xmin)
+    .def("xmax", &Curve::xmax)
+    .def_readwrite("comments", &Curve::_comments)
+    .def_readwrite("source", &Curve::_source)
+    .def_readwrite("reference", &Curve::_reference)
+    .def_readwrite("variable", &Curve::_variable)
+    .def_readwrite("xvar", &Curve::_xvar)
+    .def_readwrite("error", &Curve::_error)
+    ;
+
+  py::class_<Isobar, shared_ptr<Isobar>>(m, "Isobar")
+    .def(py::init<shared_ptr<Curve>, double>())
+    .def("__str__", &xmlstring<Isobar>)
+    .def("__repr__", &xmlstring<Isobar>)
+    .def_readwrite("security", &Isobar::security)
+    .def_property_readonly("p", &Isobar::p)
+    .def_property("curve", &Isobar::getCurve, &Isobar::setCurve)
+    .def("eval", +[](const shared_ptr<Isobar>& iso, double T){
+	auto data = sym::ad<2>(iso->getCurve()->getFunction(), sym::Var<sym::vidx<'T'>>() = T);
+	data[2] *= 2;
+	return std::vector<double>(&data[0], &data[0]+3);
+      })
+    ;
+
+  py::class_<FunctionCurve::ShomateTerm>(m, "ShomateTerm")
+    .def(py::init<double, double>())
+    ;
+  
+  py::class_<FunctionCurve, Curve, shared_ptr<FunctionCurve> >(m, "FunctionCurve")
+    .def(py::init<double, double, std::string, std::string, Objective_t, Reference_t, Objective_t, T_unit_t, Q_unit_t, E_unit_t, P_unit_t, L_unit_t, sym::Expr>())
+    .def("LaTeX", &FunctionCurve::LaTeX)
+    .def_static("Shomate", &FunctionCurve::Shomate)
+    ;
+
+  py::class_<TabulatedCurve::Datum>(m, "TabulatedCurveDatum")
+    .def_readonly("x", &TabulatedCurve::Datum::x)
+    .def_readonly("val", &TabulatedCurve::Datum::val)
+    ;
+  
+  py::class_<Atom, shared_ptr<Atom> >(m, "Atom")
+    .def(py::init<size_t, size_t, int, double, double, double>())
+    .def_readwrite("ID", &Atom::_ID)
+    .def_readwrite("Z", &Atom::_Z)
+    .def_readwrite("N", &Atom::_N)
+    .def_readwrite("charge", &Atom::_charge)
+    .def_readwrite("bonds", &Atom::_bonds)
+    .def_readwrite("x", &Atom::_x)
+    .def_readwrite("y", &Atom::_y)
+    ;
+  
+  py::class_<Bond>(m, "Bond")
+    .def(py::init<shared_ptr<Atom>, shared_ptr<Atom>, double>())
+    .def_readwrite("atom1", &Bond::_atom1)
+    .def_readwrite("atom2", &Bond::_atom2)
+    .def_readwrite("order", &Bond::_order)
+    ;
+
+  const Component::PropertyMap& (Component::*getprop_overload)() const = &Component::getProperties;
+  std::vector<shared_ptr<Atom> >&  (Component::*getstruct_overload)() = &Component::getStructure;
+    
+  py::class_<Component>(m, "Component")
+    .def("__str__", &xmlstring<Component>)
+    .def("__repr__", &xmlstring<Component>)
+    .def("__len__", &Component::size)
+    .def("__getitem__", [](const Component &s, size_t i) {
+	if (i >= s.size()) throw py::index_error();
+	return s[i];
+      })
+    .def("__iter__", [](const Component &s) { return py::make_iterator(s.begin(), s.end()); },
+	 py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
+    .def("getElements", &Component::getElements, py::return_value_policy::reference_internal)
+    .def_property("formula", &Component::getFormula, &Component::setFormula, py::return_value_policy::reference_internal)
+    .def("getPhase", &Component::getPhase, py::return_value_policy::reference_internal)
+    .def("registerPhase", &Component::registerPhase, py::return_value_policy::reference_internal)
+    .def("add_alias", &Component::add_alias)
+    .def("remove_alias", &Component::remove_alias)
+    .def("getProperties", getprop_overload, py::return_value_policy::reference_internal)
+    .def("getStructure", getstruct_overload, py::return_value_policy::reference_internal)
+    .def("registerProperty", &Component::registerProperty, py::arg("type"), py::arg("source"), py::arg("val"), py::arg("TUnit")=T_unit_t(T_unit_t::K), py::arg("QUnit")=Q_unit_t(Q_unit_t::mol), py::arg("EUnit")=E_unit_t(E_unit_t::J), py::arg("PUnit")=P_unit_t(P_unit_t::Pa), py::arg("LUnit")=L_unit_t(L_unit_t::m))
+    .def("mass", &Component::mass)
+    .def("getAliases", &Component::getAliases, py::return_value_policy::reference_internal)
+    ;
+  
+  py::class_<Phase>(m, "Phase")
+    .def("__len__", &Phase::size)
+    .def("__getitem__", [](const Phase &s, size_t i) {
+	if (i >= s.size()) throw py::index_error();
+	return s[i];
+      })
+    .def("__iter__", [](const Phase &s) { return py::make_iterator(s.begin(), s.end()); },
+	 py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
+    .def("registerIsobar", &Phase::registerIsobar)
+    .def("add_alias", &Phase::add_alias)
+    .def("remove_alias", &Phase::remove_alias)
+    .def_readwrite("name", &Phase::_name)
+    .def_readonly("type", &Phase::_type)
+    .def("getAliases", &Phase::getAliases, py::return_value_policy::reference)
+    .def_property("comments", &Phase::getComments, &Phase::setComments)
+    ;
+
+  py::class_<Model, Components, PyModel, shared_ptr<Model>>(m, "Model")
+    //Virtual functions
+    .def("Y", &Model::Y)
+    .def("p", &Model::p)
+    .def("T", &Model::T)
+    .def("v", &Model::v)
+    .def("V", &Model::V)
+    .def("s", &Model::s)
+    .def("chemPot", &Model::chemPot)
+    .def("h", &Model::h)
+    .def("u", &Model::u)
+    .def("a", &Model::a)
+    .def("Cp", &Model::Cp)
+    .def("Alpha", &Model::Alpha)
+    .def("Beta", &Model::Beta)
+    .def("str", &Model::str)
+    .def("__repr__", &Model::str)
+    .def("__str__", &Model::str)
+    .def("dfdT", &Model::dfdT)
+    .def("dfdY2", &Model::dfdY2)
+    .def("dfdNi", &Model::dfdNi)
+    .def("set", &Model::set)
+    //Normal functions
+    .def("S", &Model::S)
+    .def("negs", &Model::s)
+    .def("G", &Model::G)
+    .def("H", &Model::H)
+    .def("U", &Model::U)
+    .def("A", &Model::A)
+    .def("db", &Model::db)
+    .def("f", &Model::f)
+    .def("elements", &Model::elements)
+    .def("M", &Model::M)
+    .def("m", &Model::m)
+    .def_property_readonly("components", +[](const Model& m) { return Components(m); })
+    .def("hasData", &Model::hasData)
+    ;
+  
 }
