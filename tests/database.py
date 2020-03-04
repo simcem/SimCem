@@ -233,29 +233,29 @@ class CoreTest(unittest.TestCase):
         result.removeSmallComponents(1e-6)
         self.assertEqual(len(result), 0, msg="remainder "+str(result))
 
-##    def test_gas_adiabatic_Tp_combustion(self):
-##        #Adiabatic combustion
-##        sys = System(Objective_t.p, Objective_t.H, True)
-##        A = ModelIdealGasTp(db, Components({"N2":0.79, "O2":0.21, "CH4":0.105, "CO2":0.0, "CO":0.0, "H2O":0.0}), 300, 1.01325e5)
-##        sys.append(A)
-##        sys.equilibrate()
-##        testResult = ModelIdealGasTp(db, Components({"CH4":6.294094972974197e-12, "CO":0.01147139046161158, "CO2":0.09352860953209433, "H2O":0.2099999999874118, "N2":0.79, "O2":0.005735695243393977}), 2258.08, 1.01325e5);
-##        result = testResult - A
-##        result.removeSmallComponents(1e-7)
-##        self.assertEqual(len(result), 0, msg="remainder "+str(result))
-##        self.assertAlmostEqual(A.T(), testResult.T(), places=1)
-##
-##    def test_gas_adiabatic_TV_combustion(self):
-##        sys = System(Objective_t.p, Objective_t.H, True)
-##        V = (0.79+0.21+0.105) * 8.3145 * 300 / 1.01325e5
-##        sys.append(ModelIdealGasTV(db, Components({"N2":0.79, "O2":0.21, "CH4":0.105, "CO2":0.0, "CO":0.0, "H2O":0.0}), 300, V))
-##        sys.equilibrate()
-##        testResult = ModelIdealGasTp(db, Components({"CH4":6.294094972974197e-12, "CO":0.01147139046161158, "CO2":0.09352860953209433, "H2O":0.2099999999874118, "N2":0.79, "O2":0.005735695243393977}), 2258.08, 1.01325e5);
-##        result = testResult - sys[0]
-##        result.removeSmallComponents(2e-6)
-##        self.assertEqual(len(result), 0, msg="remainder "+str(result))
-##        self.assertAlmostEqual(sys[0].T(), testResult.T(), places=1)
-##
+    def test_gas_adiabatic_Tp_combustion(self):
+        #Adiabatic combustion
+        sys = System(Objective_t.p, Objective_t.H, True)
+        A = ModelIdealGasTp(self.db, Components({"N2":0.79, "O2":0.21, "CH4":0.105, "CO2":0.0, "CO":0.0, "H2O":0.0}), 300, 1.01325e5)
+        sys.append(A)
+        sys.equilibrate()
+        testResult = ModelIdealGasTp(self.db, Components({"CH4":6.294094972974197e-12, "CO":0.01147139046161158, "CO2":0.09352860953209433, "H2O":0.2099999999874118, "N2":0.79, "O2":0.005735695243393977}), 2258.08, 1.01325e5);
+        result = testResult.components - A.components
+        result.removeSmallComponents(1e-7)
+        self.assertEqual(len(result), 0, msg="remainder "+str(result))
+        self.assertAlmostEqual(A.T(), testResult.T(), places=1)
+
+    def test_gas_adiabatic_TV_combustion(self):
+        sys = System(Objective_t.p, Objective_t.H, True)
+        V = (0.79+0.21+0.105) * 8.3145 * 300 / 1.01325e5
+        sys.append(ModelIdealGasTV(self.db, Components({"N2":0.79, "O2":0.21, "CH4":0.105, "CO2":0.0, "CO":0.0, "H2O":0.0}), 300, V))
+        sys.equilibrate()
+        testResult = ModelIdealGasTp(self.db, Components({"CH4":6.294094972974197e-12, "CO":0.01147139046161158, "CO2":0.09352860953209433, "H2O":0.2099999999874118, "N2":0.79, "O2":0.005735695243393977}), 2258.08, 1.01325e5);
+        result = testResult.components - sys[0].components
+        result.removeSmallComponents(2e-6)
+        self.assertEqual(len(result), 0, msg="remainder "+str(result))
+        self.assertAlmostEqual(sys[0].T(), testResult.T(), places=1)
+
 ##    def test_VT_Tp_combustion(self):
 ##        #Isothermal-Isochoric combustion
 ##        sys = System(Objective_t.V, Objective_t.T, True)
