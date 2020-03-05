@@ -1,6 +1,6 @@
 #pragma once
-#include "enum.hpp"
-#include "config.hpp"
+#include <simcem/enum.hpp>
+#include <simcem/config.hpp>
 #include <boost/algorithm/string.hpp>
 #include <stator/symbolic/symbolic.hpp>
 #include <algorithm>

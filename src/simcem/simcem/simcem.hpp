@@ -1,5 +1,5 @@
 #pragma once
-#include "curve.hpp"
+#include <simcem/curve.hpp>
 #include <Eigen/Eigen>
 #include <unordered_map>
 #include <iomanip>
@@ -752,7 +752,7 @@ namespace simcem {
     double kB = 1.38064852e-23;
     double steffanBoltzmannConstant = 5.670367e-8;
     //! \brief Standard gravity acceleration.
-    double g = 9.80665; 
+    constexpr static double g = 9.80665; 
     
     //Derived constants Calculated in the constructor
     double R() const { return kB * avogadro; }

@@ -1,4 +1,4 @@
-#include "simcem/simcem.hpp"
+#include <simcem/simcem.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 
@@ -9,21 +9,18 @@ using namespace simcem;
 
 // Get all of the opaque containers defined
 typedef std::unordered_map<std::string, simcem::Element> ElementMap;
-PYBIND11_MAKE_OPAQUE(ElementMap)
-
+PYBIND11_MAKE_OPAQUE(ElementMap);
 typedef std::unordered_map<std::string, simcem::Component> ComponentMap;
-PYBIND11_MAKE_OPAQUE(ComponentMap)
-
+PYBIND11_MAKE_OPAQUE(ComponentMap);
 typedef std::vector<simcem::Isotope> IsotopeList;
-PYBIND11_MAKE_OPAQUE(IsotopeList)
-
+PYBIND11_MAKE_OPAQUE(IsotopeList);
 typedef std::vector<simcem::Component::Property> PropertyList;
-PYBIND11_MAKE_OPAQUE(PropertyList)
-
-PYBIND11_MAKE_OPAQUE(std::vector<FunctionCurve::ShomateTerm>)
-PYBIND11_MAKE_OPAQUE(std::vector<Bond>)
-PYBIND11_MAKE_OPAQUE(std::vector<Atom>)
-PYBIND11_MAKE_OPAQUE(std::vector<TabulatedCurve::Datum>)
+PYBIND11_MAKE_OPAQUE(PropertyList);
+PYBIND11_MAKE_OPAQUE(std::vector<FunctionCurve::ShomateTerm>);
+PYBIND11_MAKE_OPAQUE(std::vector<Bond>);
+PYBIND11_MAKE_OPAQUE(std::vector<Atom>);
+PYBIND11_MAKE_OPAQUE(std::vector<TabulatedCurve::Datum>);
+PYBIND11_MAKE_OPAQUE(simcem::Component::PropertyMap);
 
 Components init_from_dict(py::dict d) {
   Components retval;
@@ -141,6 +138,7 @@ PYBIND11_MODULE(core, m)
   py::bind_vector<std::vector<Bond>>(m, "BondList");
   py::bind_vector<std::vector<Atom>>(m, "AtomList");
   py::bind_vector<std::vector<TabulatedCurve::Datum>>(m, "TabulatedCurveList");
+  py::bind_map<simcem::Component::PropertyMap>(m, "PropertyMap");
   
   py::class_<simcem::Database, std::shared_ptr<simcem::Database> >(m, "Database")
     .def(py::init(&Database::create))
@@ -155,7 +153,7 @@ PYBIND11_MODULE(core, m)
     .def_readwrite("avogadro", &Database::avogadro)
     .def_readwrite("kB", &Database::kB)
     .def_readwrite("steffanBoltzmannConstant", &Database::steffanBoltzmannConstant)
-    .def_readwrite("g", &Database::g)
+    .def_property_readonly_static("g", +[](){ return Database::g; })
     .def_property_readonly("R", &Database::R)
     ;
 

@@ -1,10 +1,10 @@
 #pragma once
-#include <simcem.hpp>
+#include <simcem/simcem.hpp>
+#include <simcem/sundials.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <memory>
 #include <numeric>
-#include <sundials.hpp>
 
 /*
   Notes:

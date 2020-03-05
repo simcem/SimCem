@@ -12,9 +12,12 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 include_directories(src/stator src/simcem src)
 add_library(simcem src/simcem/simcem/simcem.cpp)
 
-target_include_directories(simcem PUBLIC ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS})
+target_include_directories(simcem PUBLIC src/simcem/ ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS})
 target_link_libraries(simcem PUBLIC PRIVATE Eigen3::Eigen ${IPOPT_LIBRARIES} ${IPOPT_LINK_FLAGS} )
 set_target_properties(simcem PROPERTIES POSITION_INDEPENDENT_CODE True)
 
 pybind11_add_module(core pysrc/simcem/core.cpp)
 target_link_libraries(core PRIVATE simcem)
+
+pybind11_add_module(kiln pysrc/simcem/kiln.cpp)
+target_link_libraries(kiln PRIVATE simcem sundials_ida sundials_nvecserial)

@@ -256,23 +256,30 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(len(result), 0, msg="remainder "+str(result))
         self.assertAlmostEqual(sys[0].T(), testResult.T(), places=1)
 
-##    def test_VT_Tp_combustion(self):
-##        #Isothermal-Isochoric combustion
-##        sys = System(Objective_t.V, Objective_t.T, True)
-##        A = ModelIdealGasTp(db, Components({"N2":0.79, "O2":0.21, "H2":0.42, "H2O":0.0}), 2000, 1.01325e5)
-##        origV = A.V()
-##        orig_elements = A.components.elements(db)
-##        sys.append(A)
-##        sys.equilibrate()
-##        testResult = ModelIdealGasTp(db, Components({"H2":0.003476625431155716, "H2O":0.4165233745688441, "N2":0.79, "O2":0.001738312715577942}), 2000, 0.864644e5)
-##        result = testResult - A
-##        result.removeSmallComponents(1e-5)
-##        self.assertEqual(len(result), 0, msg="remainder "+str(result))
-##        self.assertAlmostEqual(A.V(), origV, places=4)
-##
-##    def test_getProperty(self):
-##        self.assertEqual(db.getComponent("C6H12,cyclo-").getProperties()[Property_t.pc][0].value, 4079999.9999999995)
-##
+    def test_VT_Tp_combustion(self):
+        #Isothermal-Isochoric combustion
+        sys = System(Objective_t.V, Objective_t.T, True)
+        A = ModelIdealGasTp(self.db, Components({"N2":0.79, "O2":0.21, "H2":0.42, "H2O":0.0}), 2000, 1.01325e5)
+        origV = A.V()
+        orig_elements = A.components.elements(self.db)
+        sys.append(A)
+        sys.equilibrate()
+        testResult = ModelIdealGasTp(self.db, Components({"H2":0.003476625431155716, "H2O":0.4165233745688441, "N2":0.79, "O2":0.001738312715577942}), 2000, 0.864644e5)
+        result = testResult.components - A.components
+        result.removeSmallComponents(1e-5)
+        self.assertEqual(len(result), 0, msg="remainder "+str(result))
+        self.assertAlmostEqual(A.V(), origV, places=4)
+
+    def test_getProperty(self):
+        self.assertEqual(self.db.getComponent("C6H12,cyclo-").getProperties()[Property_t.pc][0].value, 4079999.9999999995)
+
+    def test_phase_math(self):
+        A = ModelIdealGasTp(self.db, Components({"H2":0.003476625431155716, "H2O":0.4165233745688441, "N2":0.79, "O2":0.001738312715577942}), 2000, 0.864644e5)
+        B = ModelIdealGasTp(self.db, Components({"H2":0.003476625431155716, "H2O":0.4165233745688441, "N2":0.79, "O2":0.001738312715577942}), 2000, 0.864644e5)
+        #result = A-B
+        #result.removeSmallComponents(1e-5)
+        #self.assertEqual(len(result), 0, msg="remainder "+str(result))
+        
     
 if __name__ == '__main__':
     unittest.main()
