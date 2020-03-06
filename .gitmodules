@@ -4,9 +4,3 @@
 [submodule "src/stator"]
 	path = src/stator
 	url = https://github.com/toastedcrumpets/stator.git
-[submodule "src/sundials"]
-	path = src/sundials
-	url = https://github.com/LLNL/sundials.git
-[submodule "src/coin"]
-	path = src/coin
-	url = https://github.com/ampl/coin.git
