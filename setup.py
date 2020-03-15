@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import re
 import sys
@@ -63,13 +64,13 @@ setup(
     version="0.0.1",
     author="Marcus Bannerman",
     author_email="m.bannerman@gmail.com",
-    description="A thermodynamics package",
+    description="A wrapper around the SimCem thermodynamics/process engineering package",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/toastedcrumpets",
+    url="http://simcem.com",
     classifiers=[
         "Programming Language :: C++",
-        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
     packages=find_packages('pysrc'),
@@ -79,4 +80,5 @@ setup(
     ],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
+    python_requires='>=3.6',
 )
