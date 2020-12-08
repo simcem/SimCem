@@ -6,7 +6,7 @@
 # ifndef SUNDIALS_VERSION_MAJOR
 #  error Could not detect the sundials version via SUNDIALS_PACKAGE_VERSION or SUNDIALS_VERSION_MAJOR macros
 # endif
-# if SUNDIALS_VERSION_MAJOR == 3
+# if SUNDIALS_VERSION_MAJOR >= 3
 #  define SUNDIALS_3
 # else
 #  error Unsupported version of sundials!
