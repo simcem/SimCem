@@ -55,7 +55,7 @@ class CMakeBuild(build_ext):
         print()
 
 setup(
-    name="pysimcem",
+    name="simcem",
     version="0.0.1",
     author="Marcus Bannerman",
     author_email="m.bannerman@gmail.com",
