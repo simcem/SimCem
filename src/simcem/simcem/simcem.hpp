@@ -15,10 +15,13 @@
 # include <nlopt.hpp>
 #endif
 #define HAVE_CSTDDEF
-#include <coin/IpTNLP.hpp>
-#include <coin/IpIpoptApplication.hpp>
+#include <IpTNLP.hpp>
+#include <IpIpoptApplication.hpp>
 #include <stator/string.hpp>
 #include <stator/symbolic/ad.hpp>
+
+//Fixes for MSVC non-standardness
+#include <ciso646>
 
 /*!
   \mainpage 

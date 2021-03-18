@@ -126,17 +126,10 @@ if(NOT WIN32)
 else()
   include(SelectLibraryConfigurations)
 
-  set(IPOPT_DIR $ENV{IPOPT_DIR} CACHE PATH "Path to IPOPT build directory")
-  
-  find_path(IPOPT_INCLUDE_DIRS NAMES IpIpoptApplication.hpp coin/IpIpoptApplication.hpp PATHS ${IPOPT_DIR}/include/coin)
+  find_path(IPOPT_INCLUDE_DIRS NAMES IpIpoptApplication.hpp PATHS PATH_SUFFIXES coin coin-or)
+  find_library(IPOPT_LIBRARIES ipopt-3 PATH ${IPOPT_DIR}/lib ${IPOPT_DIR}/lib/coin ${IPOPT_DIR}/lib/coin-or)
 
-  find_library(IPOPT_IPOPT_LIBRARY_RELEASE libipopt ${IPOPT_DIR}/lib
-                                                    ${IPOPT_DIR}/lib/coin)
-  find_library(IPOPT_IPOPT_LIBRARY_DEBUG   libipoptD ${IPOPT_DIR}/lib
-                                                     ${IPOPT_DIR}/lib/coin)
-
-  select_library_configurations(IPOPT_IPOPT)
-  set(IPOPT_LIBRARIES ${IPOPT_IPOPT_LIBRARY})
+  message(STATUS "FindIPOPT: Checking ${IPOPT_LIBRARIES}")
 
   # Some old version of binary releases of IPOPT have Intel fortran
   # libraries embedded in the library, newer releases require them to
@@ -212,12 +205,12 @@ else()
     endif()
   endif()
 
-  set(IPOPT_DEFINITIONS "")
-  if(MSVC)
-    set(IPOPT_LINK_FLAGS "/NODEFAULTLIB:libcmt.lib;libcmtd.lib")
-  else()
-    set(IPOPT_LINK_FLAGS "")
-  endif()
+  #set(IPOPT_DEFINITIONS "")
+  #if(MSVC)
+  #  set(IPOPT_LINK_FLAGS "/NODEFAULTLIB:libcmt.lib;libcmtd.lib")
+  #else()
+  #  set(IPOPT_LINK_FLAGS "")
+  #endif()
 
 endif()
 
