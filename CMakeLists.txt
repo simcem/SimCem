@@ -9,7 +9,7 @@ add_subdirectory(src/pybind11)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(IPOPT 3.11.9 REQUIRED)
-find_package(Eigen3 3.3 REQUIRED)
+find_package(Eigen3 3.2 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(SUNDIALS REQUIRED)
 
