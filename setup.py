@@ -73,6 +73,7 @@ setup(
     ext_modules=[
         CMakeExtension('simcem.core')
     ],
+    test_suite='tests',
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )
