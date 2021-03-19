@@ -21,8 +21,9 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: Dependencies
-        run: python -m pip install scikit-build twine
-
+        run: |
+          apt-get install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev
+          python -m pip install scikit-build twine
       - name: Build sdist
         run: python setup.py sdist
 
@@ -36,12 +37,12 @@ jobs:
           retention-days: 2
 
   build_wheels:
-    name: Build 🐍 wheels on ${{ matrix.os }}
+    name: Build python wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-2016]
+        os: [ubuntu-20.04, macos-latest, windows-2019]
 
     steps:
       - name: Checkout
@@ -49,19 +50,22 @@ jobs:
         with:
           submodules: true
 
+      - name: Install Visual C++ for Python 2.7
+        if: runner.os == 'Windows'
+        run: choco install vcpython27 -f -y
       - name: Setup Python
         uses: actions/setup-python@v2
 
       - name: Dependencies
         run: |
-          python -m pip install cibuildwheel==1.7.4
+          python -m pip install cibuildwheel
 
       - name: Build wheels
         env:
           CIBW_SKIP: "cp27-* pp27-* cp35-*"
           CIBW_BEFORE_BUILD_MACOS: >
-            brew install openblas &&
-            export OPENBLAS="$(brew --prefix openblas)" &&
+            brew install ipopt eigen cmake sundials boost  &&
+            #export OPENBLAS="$(brew --prefix openblas)" &&
             python -m pip install numpy
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "python -m pytest {project}/test"

@@ -48,7 +48,7 @@ jobs:
           submodules: true
 
       - name: Dependencies
-        run: sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev
+        run: sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev
 
       - name: Configure
         run: |
