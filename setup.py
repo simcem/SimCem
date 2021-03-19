@@ -56,10 +56,10 @@ class CMakeBuild(build_ext):
 
 setup(
     name="simcem",
-    version="0.0.1",
+    version="0.0.2",
     author="Marcus Bannerman",
     author_email="m.bannerman@gmail.com",
-    description="A wrapper around the SimCem thermodynamics/process engineering package",
+    description="SimCem, the thermodynamics/process engineering package",
     long_description=open("README.md", "r").read(),
     long_description_content_type="text/markdown",
     url="http://simcem.com",
