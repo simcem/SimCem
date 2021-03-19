@@ -1,0 +1,66 @@
+name: CI build Linux
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu 20.04 - GCC 7.5.0",
+            cc: "gcc-7", cxx: "g++-7"
+          }
+        - {
+            name: "Ubuntu 20.04 - GCC 8.4.0",
+            cc: "gcc-8", cxx: "g++-8"
+          }
+        - {
+            name: "Ubuntu 20.04 - GCC 9.3.0",
+            cc: "gcc-9", cxx: "g++-9"
+          }
+        - {
+            name: "Ubuntu 20.04 - GCC 10.2.0",
+            cc: "gcc-10", cxx: "g++-10"
+          }
+        - {
+            name: "Ubuntu 20.04 - Clang 8.0.1",
+            cc: "clang-8", cxx: "clang++-8"
+          }
+        - {
+            name: "Ubuntu 20.04 - Clang 9.0.1",
+            cc: "clang-9", cxx: "clang++-9"
+          }
+        - {
+            name: "Ubuntu 20.04 - Clang 10.0.0",
+            cc: "clang-10", cxx: "clang++-10"
+          }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Dependencies
+        run: sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev
+
+      - name: Configure
+        run: |
+          cmake \
+            -Bbuild \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+      - name: Build
+        run: |
+          CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} python setup.py build
+
+      - name: Test
+        run: |
+          CC=${{ matrix.config.cc }} CXX=${{ matrix.config.cxx }} python setup.py test
