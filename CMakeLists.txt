@@ -19,7 +19,7 @@ include_directories(src/stator src/simcem src)
 add_library(simcem src/simcem/simcem/simcem.cpp)
 
 target_include_directories(simcem PUBLIC src/simcem/ ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-target_link_libraries(simcem PUBLIC PRIVATE Eigen3::Eigen ${IPOPT_LIBRARIES} ${IPOPT_LINK_FLAGS})
+target_link_libraries(simcem PUBLIC PRIVATE ${IPOPT_LIBRARIES} ${IPOPT_LINK_FLAGS})
 set_target_properties(simcem PROPERTIES POSITION_INDEPENDENT_CODE True)
 
 pybind11_add_module(core pysrc/simcem/core.cpp)
