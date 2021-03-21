@@ -14,3 +14,7 @@ Components.__str__ = Components.__repr__
 Database.__str__ = lambda s: 'Database('+str(len(s.getElements()))+' elements, '+str(len(s.getComponents()))+' components)'
 
 Components.as_dict = lambda s: dict(s.items())
+
+def defaultDatabase():
+    import os
+    return Database(os.path.join(os.path.dirname(__file__), 'free_database.xml'))

@@ -17,7 +17,7 @@ class CoreTest(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        cls.db = Database("free_database.xml")
+        cls.db = defaultDatabase()
 
     def test_kiln(self):
         kiln_exp_data = simcem.KilnData.getExperimentalKilns()

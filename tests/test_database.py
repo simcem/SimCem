@@ -13,7 +13,7 @@ class CoreTest(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        cls.db = Database("free_database.xml")
+        cls.db = defaultDatabase()
 
     def check_reprloop(self, item):
         #Check the repr and constructor is correctly implemented

@@ -1,4 +1,4 @@
-include README.md LICENSE free_database.xml
+include README.md LICENSE pysrc/simcem/free_database.xml
 global-include CMakeLists.txt *.cmake
 recursive-include src *
 recursive-include pysrc *.cpp

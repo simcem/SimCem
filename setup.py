@@ -70,6 +70,9 @@ setup(
     ],
     packages=find_packages('pysrc'),
     package_dir={"":"pysrc"},
+    package_data={
+        'simcem': ['*.xml'],
+    },
     ext_modules=[
         CMakeExtension('simcem.core')
     ],
