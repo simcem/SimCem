@@ -211,7 +211,7 @@ class CoreTest(unittest.TestCase):
         #Solid combustion
         sys = System(Objective_t.p, Objective_t.T, True)
         A = ModelIdealGasTp(self.db, Components({"O2":1.0, "CO2":0, "CO":0}), 2600, 1.01325e5)
-        B = ModelIncompressible(self.db, Components({"C:graphite":1.0, "CaO:Crystal":0}), 2600, 1.01325e5, "solid", True)
+        B = ModelIncompressible(self.db, Components({"C:graphite":1.0, "CaO:Crystal":0}), 2600, 1.01325e5, "solid", False)
         sys.append(A)
         sys.append(B)
         sys.equilibrate()
@@ -224,7 +224,7 @@ class CoreTest(unittest.TestCase):
         sys = System(Objective_t.p, Objective_t.T, True)
         V = 1.0 * self.db.R * 2600 / 1.01325e5
         A = ModelIdealGasTV(self.db, Components({"O2":1.0, "CO2":0, "CO":0}), 2600, V)
-        B = ModelIncompressible(self.db, Components({"C:graphite":1.0, "CaO:Crystal":0}), 2600, 1.01325e5, "solid", True)
+        B = ModelIncompressible(self.db, Components({"C:graphite":1.0, "CaO:Crystal":0}), 2600, 1.01325e5, "solid", False)
         sys.append(A)
         sys.append(B)
         sys.equilibrate()

@@ -28,8 +28,8 @@ kiln.add_layer(material="SteelShell", thickness=0.005, k=Expr("57"))
 
 # Lets get started solving the kiln conditions. First, lets define the material inputs
 
-# Say what solid is coming in, in kg / s
-solidIn = Components({'CaCO3':1.0}) * 27.0 / 3600.0
+# Say what solid is coming in, in kg / s (27 kg/hr is given)
+solidIn = Components({'CaCO3':27.0 / 3600.0}) 
 # Then convert it to moles
 solidIn = MassToMoles(db, solidIn)
 
@@ -56,6 +56,23 @@ init_slice = Slice(solidIn,
 # the kiln to shoot for.
 Tgas_out_target = init_slice.gas.T()
 
+
+## EXTRA, this is how you'd do everything yourself.
+#  #This is an adiabatic flame calculation with a solid fuel
+#  inlet_gas = ModelIdealGasTp(db, Components({'CH4':10, 'O2':20, 'N2':80, 'CO':0, 'CO2':0, 'NO':0, 'NO2':0, 'H2O':0}), T=298.15, p=1e5)
+#  inlet_solid_fuel = ModelIncompressible(db, Components({"C:graphite":1.0}), 2600, 1.01325e5, "solid", False)
+#  sys = System(Objective_t.p, Objective_t.H, True)
+#  sys.append(inlet_gas)
+#  sys.append(inlet_solid_fuel)
+#  sys.equilibrate()
+#
+## Now we can plug the resulting combusted gas, and the inlet kiln solid into the kiln model.
+#  inlet_solid = ModelIncompressible(db, Components({"CaO:Crystal":10}), 298.15, 1.01325e5, "solid", True)
+#  init_slice = Slice(inlet_gas, inlet_solid, 0)
+
+
+
+
 # Make a list of points to calculate the kiln conditions at
 stop_points = DoubleList()
 import numpy as np
@@ -67,12 +84,12 @@ for v in np.arange(0.1, kilnLength, 0.1):
 # Lets make a function that, given a solids inlet temperature of T, returns the difference between our target gas temperature
 def func(T):
     #This is a whole solving of a kiln.
-    init_slice.gas.set(Objective_t.T, float(max(T,298.15)), Objective_t.p)
+    init_slice.gas.set(Objective_t.T, float(T), Objective_t.p)
     kiln.getSlices().clear()
     kiln.solve_SS_inert(init_slice=init_slice, stop_points=stop_points, store_intermediate=True)
     #print("Current exit Tgas=",kiln.getSlices()[len(kiln.getSlices())-1].gas.T())
     #print("Difference is ",kiln.getSlices()[len(kiln.getSlices())-1].gas.T() - T)
-    return kiln.getSlices()[len(kiln.getSlices())-1].gas.T() - Tgas_out_target
+    return kiln.getSlices()[-1].gas.T() - Tgas_out_target
 #Then solve    
 Tgas_in = brenth(func, 298.15, 1200.0, disp=True)
 
