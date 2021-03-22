@@ -100,8 +100,9 @@ else ()
 
 endif()
 
-if(EIGEN3_FOUND AND NOT TARGET Eigen3::Eigen)
-  add_library(Eigen3::Eigen INTERFACE IMPORTED)
-  set_target_properties(Eigen3::Eigen PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIR}")
-endif()
+# We've removed this to allow support on CMake 2.8 for python manywheels
+# if(EIGEN3_FOUND AND NOT TARGET Eigen3::Eigen)
+#   add_library(Eigen3::Eigen INTERFACE IMPORTED)
+#   set_target_properties(Eigen3::Eigen PROPERTIES
+#     INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIR}")
+# endif()
