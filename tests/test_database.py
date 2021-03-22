@@ -266,7 +266,7 @@ class CoreTest(unittest.TestCase):
         sys.equilibrate()
         testResult = ModelIdealGasTp(self.db, Components({"H2":0.003476625431155716, "H2O":0.4165233745688441, "N2":0.79, "O2":0.001738312715577942}), 2000, 0.864644e5)
         result = testResult.components - A.components
-        result.removeSmallComponents(1e-5)
+        result.removeSmallComponents(4e-5)
         self.assertEqual(len(result), 0, msg="remainder "+str(result))
         self.assertAlmostEqual(A.V(), origV, places=4)
 
