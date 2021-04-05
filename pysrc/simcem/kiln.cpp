@@ -36,5 +36,6 @@ PYBIND11_MODULE(kiln, m)
     .def("R_wall_shell", &simcem::kiln::Kiln::R_wall_shell)
     .def("Q_w_ext", &simcem::kiln::Kiln::Q_w_ext)
     .def("Q_w_sh", &simcem::kiln::Kiln::Q_w_sh)
+    .def("length", &simcem::kiln::Kiln::length)
     ;
 }

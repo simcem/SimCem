@@ -1030,6 +1030,8 @@ namespace simcem {
 
       std::vector<Slice>& getSlices() { return _slices; }
 
+      double length() const { return _length; }
+      
     protected:
       
       const double _RPM;
