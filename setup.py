@@ -79,8 +79,6 @@ setup(
     install_requires = [
         'numpy',
         'scipy',
-        'sympy',
-        'matplotlib',
     ],
     test_suite='tests',
     cmdclass=dict(build_ext=CMakeBuild),
