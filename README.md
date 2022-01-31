@@ -70,8 +70,7 @@ python ./setup.py install
 # Usage/Database
 
 You will need a thermodynamic database to use SimCem. A free one
-containing data from NASA is available in the (GitHub repository
-here)[https://github.com/toastedcrumpets/SimCem/raw/master/free_database.xml].
+containing data from NASA is available in the [GitHub repository here](https://github.com/toastedcrumpets/SimCem/raw/master/free_database.xml).
 Eventually, you will be able to download databases from SimCem.com.
 
 # Alternatives
