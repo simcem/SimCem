@@ -81,5 +81,6 @@ solutions and better than SimCem in many ways:
 Open/free software
 * [Pycalphad](https://pycalphad.org/docs/latest/) is an python Gibbs free energy minimizer which can solve for phase diagrams (among other things).
 * [ESPEI](https://espei.org/en/latest/) is built on top of Pycalphad and tries to solve the problems of thermodynamic fitting for metals/oslid systems.
-* [OpenCalphad](http://www.opencalphad.com/) a fortran CALPHAD approach 
-* 
+* [OpenCalphad](http://www.opencalphad.com/) a fortran CALPHAD approach
+* [BurnMan](https://geodynamics.github.io/burnman/): A nice thermodynamic modelling package for geological processes (so it has pressure-dependence in solids).
+* [NASA CEA](https://www1.grc.nasa.gov/research-and-engineering/ceaweb/topicshome/) 
