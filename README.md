@@ -36,7 +36,7 @@ sundials, and ipopt for this to succeed. You can get these on Ubuntu
 using the following command:
 
 ```
-sudo apt-get install libeigen3-dev libsundials-dev coinor-libipopt-dev
+sudo apt-get install libeigen3-dev libsundials-dev coinor-libipopt-dev libboost-all-dev
 ```
 
 # Installation on Windows
@@ -52,7 +52,17 @@ conda install -c toastedcrumpets simcem
 
 # Compiling/Building the package yourself
 
-While CMake is used to perform the actual compilation, it is hooked
+Make sure to initialise and update submodules 
+if you haven't done so with git clone, run this command 
+
+```
+git submodule init
+```
+```
+git submodule update
+```
+
+After the above steps are complete you can build and install. While CMake is used to perform the actual compilation, it is hooked
 into python setuptools, so to build the package just run
 
 ```
