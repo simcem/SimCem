@@ -50,14 +50,14 @@ class CMakeBuild(build_ext):
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        print("## Current working directory", os.getcwd())
-        print("Directory contents", os.listdir('.'))
-        print("Submodule contents", os.listdir('./submodule'))
-        print("## Running git submodule update", ['git', 'submodule', 'update', '--init', '--recursive'], "cwd=",ext.sourcedir)
-        subprocess.check_call(['git', 'submodule', 'update', '--init', '--recursive'], cwd=ext.sourcedir)
-        print("## Running cmake with arguments", ['cmake', ext.sourcedir] + cmake_args, "cwd=",self.build_temp, "env=",env)
+        #print("## Current working directory", os.getcwd())
+        #print("Directory contents", os.listdir('.'))
+        #print("Submodule contents", os.listdir('./submodule'))
+        #print("## Running git submodule update", ['git', 'submodule', 'update', '--init', '--recursive'], "cwd=",ext.sourcedir)
+        #subprocess.check_call(['git', 'submodule', 'update', '--init', '--recursive'], cwd=ext.sourcedir)
+        #print("## Running cmake with arguments", ['cmake', ext.sourcedir] + cmake_args, "cwd=",self.build_temp, "env=",env)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
-        print("## Running cmake build", ['cmake', '--build', '.'] + build_args, "cwd=",self.build_temp)
+        #print("## Running cmake build", ['cmake', '--build', '.'] + build_args, "cwd=",self.build_temp)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
