@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -25,8 +25,8 @@ jobs:
 
       - name: Dependencies
         run: |
-          sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev
-          python -m pip install pytest
+          sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev 
+          python -m pip install pytest matplotlib
 
       - name: Install
         run: |
