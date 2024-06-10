@@ -6,33 +6,6 @@
 #include <memory>
 #include <numeric>
 
-/*
-  Notes:
-  Theo's guide
-
-  There are three PyKiln folders:  
-  - PyKiln - Output from each test
-  - PyKiln2 - Output from each test
-  - Optimize_Heat_Model - Theo's work on optimising the heat transfer coefficients
-
-  You need to install assimulo to use it. Do this by downloading the
-  source code, replacing all StrictVersion by LooseVersion in
-  setup.py, then build/install.
-
-  You also need to install PyChemEng. The folders in dropbox are not
-  installable (old versions) It seems that PyChemEngLocal is the
-  newest version, followed by PyChemEng-Marcus, then PyChemEng. You
-  need to install from git@dynamomd.org:PyChemEng.
-
-  You also need pyopt!
-
-  Each PyKiln folder has the following structure:
-  - Kiln_Classes.py - All pilot kiln trial data.
-  - KilnSolverXXXX.py - The actual workhorse for fitting data, all copies of KilnSolverXXX.py
-  - Kiln_Plotter.py - Plotting of data files from KilnSolver
-  
-  run PyKiln2/KilnSolverAssimulo.py, then run Kiln_Plotter.py
-*/
 namespace simcem {
   /*! \brief Heat transfer correlations and expressions. */
   namespace HT {

@@ -50,7 +50,7 @@ namespace simcem {
   }
   
   void Phase::registerIsobar(shared_ptr<Isobar> ib) {
-    ib->getCurve()->setMass(_mol.mass());
+    ib->getCurve()->setMass(_mol->mass());
     push_back(ib);
   }
 

@@ -8,6 +8,7 @@ class Kiln:
         self.length = L
         
     def finish(self):
+        #The description of Barr's experiments. Not all are included as there are reactions, need to go back and digitize those.
         CS_list = ["T1","T2","T3","T4"] #Coarse sand
         FS_list = ["T5","T6","T7","T8","T9"] #Fine Sand
         #EXPERIMENTS 10-13 are on Pet Coke, but missing!
@@ -40,7 +41,22 @@ class Kiln:
             self.solid_density = 2300 #Assumed from internet searches!
 
         self.solidIn = Components(solidComponents) * (self.solidFeedRate / 1000.0)
-        
+
+    def error_func(self, slices_dict):
+        #What is in the slices_dict
+        #results[slice.Z] = [slice.gas.T(), slice.solid.T(), slice.T_wall, slice.T_ext_shell]
+
+        #For this generic error function, we compare the gas
+        #temperature measurements against the gas, as they are in the
+        #gas for the Barr measurements.
+        error =[]
+        error += [slices_dict[Z][0] - T for Z,T in zip(self.x_gas_off_wall, self.y_gas_off_wall)]
+        error += [slices_dict[Z][0] - T for Z,T in zip(self.x_gas_off_bed, self.y_gas_off_bed)]            
+        error += [slices_dict[Z][1] - T for Z,T in zip(self.x_bed, self.y_bed)]
+        error += [slices_dict[Z][2] - T for Z,T in zip(self.x_wall, self.y_wall)]
+        return error
+
+
 class BarrKiln(Kiln):
     def __init__(self,solidFeedRate,primaryAir,secondaryAir,inGasFlow,solidLoading,RPM,particleDiameter):
         layers = [
@@ -57,6 +73,23 @@ class BarrKiln(Kiln):
         self.RPM = RPM
         self.particleDiameter = particleDiameter
 
+        # Barr data has gas_off_wall (measured 10cm from the wall) and
+        # gas_off_bed (measured 2.5cm from the bed), same thermocouple
+        # but rotating with the kiln.
+
+        # No external shell data? Need to check this
+        self.x_shell = []
+        self.y_shell = []
+
+    def error_func(self, slices_dict):
+        #results[slice.Z] = [slice.gas.T(), slice.solid.T(), slice.T_wall]
+        error =[]
+        error += [slices_dict[Z][0] - T for Z,T in zip(self.x_gas_off_wall, self.y_gas_off_wall)]
+        error += [slices_dict[Z][0] - T for Z, T in zip(self.x_gas_off_bed, self.y_gas_off_bed)]
+        error += [slices_dict[Z][1] - T for Z,T in zip(self.x_bed, self.y_bed)]
+        error += [slices_dict[Z][2] - T for Z,T in zip(self.x_wall, self.y_wall)]
+            
+        return error
         
 class BarrKilnT4(BarrKiln):
     def __init__(self):
@@ -79,26 +112,24 @@ class BarrKilnT4(BarrKiln):
         self.y_wall = [730.705,812.863,837.759,857.676,875.104,947.303,984.647]
         self.x_wall = [1.35443,2.31646,2.68354,3.03797,3.39241,4.41772,4.73418]
         #self.phase = "1a-qz"     
-    
-    
-class BarrKilnT8(BarrKilnT4):
+
+        
+class BarrKilnT1(BarrKilnT4):
     def __init__(self):
         BarrKilnT4.__init__(self)
-        BarrKiln.__init__(self, solidFeedRate=65.0 * 1000.0 / 3600.0,#g/s
-                          primaryAir= 18.8, secondaryAir = 40.01,inGasFlow = 2.00, #L/s
-                          solidLoading = 0.12,RPM = 1.5,particleDiameter = 0.00058#m
+        BarrKiln.__init__(self, solidFeedRate=62.0 * 1000.0 / 3600.0,#g/s
+                          primaryAir= 9.4, secondaryAir = 18.8,inGasFlow = 0.83, #L/s
+                          solidLoading = 0.12,RPM = 1.5,particleDiameter = 0.0025 #m
                           )	
-        self.ID = "T8"
-        self.y_gas_off_wall = [834.648,876.944,959.68,974.382,1010.67,1031.86,1059.12,1105.45]
-        self.x_gas_off_wall =  [0.113848,0.884104,2.14718,2.51063,2.8539,3.19637,3.91249,4.94962]
-        self.y_bed = [450.82,618.199,712.463,780.714,810.51,823.068,857.199,903.877,950.693,995.478]
-        self.x_bed =  [0.11471,0.870304,1.44066,2.13764,2.50189,2.85456,3.19772,3.90421,4.4827,4.94376]
-        self.y_gas_off_bed= [741.92,838.121,935.95,963.601,989.108,1046.18,1120.55]
-        self.x_gas_off_bed = [0.119569,0.8927,2.15658,2.51006,2.85275,3.92246,4.93976]
-        self.y_wall = [710.422,791.3,818.951,837.977,865.629,912.582,987.026]
-        self.x_wall = [1.33389,2.31954,2.67301,3.02603,3.3795,3.83,4.78331]  
-        
-        
+        self.ID = "T1"
+        self.y_gas_off_wall = [592.996,661.964,749.991,769.207,803.748,818.617,872.36,943.188]
+        self.x_gas_off_wall = [0.0986207,0.884875,2.14983,2.50924,2.85898,3.19636,3.91636,4.95221]
+        self.y_bed =  [400.487,454.172,514.676,555.323,606.878,751.305,809.75,854.971]
+        self.x_bed =   [0.105399,0.868777,1.43746,2.13475,2.85458,4.48182,4.95272,5.49853]
+        self.y_gas_off_bed= [564.547,576.646,629.676,662.016,692.196,744.25,848.3,891.362,927.877]
+        self.x_gas_off_bed =  [0.107263,0.889111,2.15135,2.51178,2.85034,3.1906,3.91449,4.43844,4.95103] 
+        self.y_wall = [530.129,587.89,609.293,635.099,652.128,704.025,764.543,812.15]
+        self.x_wall = [1.33019,2.32165,2.68123,3.01945,3.37869,3.83824,4.39608,4.79022]
         
 class BarrKilnT2(BarrKilnT4):
     def __init__(self):
@@ -184,24 +215,25 @@ class BarrKilnT7(BarrKilnT4):
         self.x_gas_off_bed =  [0.109856,0.88193,2.17528,2.51198,2.78332,3.91234,4.94336] 
         self.y_wall = [534.963,581.195,598.813,609.765,618.5,644.968,684.538]
         self.x_wall = [1.3334,2.31155,2.67023,3.02862,3.37607,3.82191,4.78892]
-
-class BarrKilnT1(BarrKilnT4):
+        
+    
+class BarrKilnT8(BarrKilnT4):
     def __init__(self):
         BarrKilnT4.__init__(self)
-        BarrKiln.__init__(self, solidFeedRate=62.0 * 1000.0 / 3600.0,#g/s
-                          primaryAir= 9.4, secondaryAir = 18.8,inGasFlow = 0.83, #L/s
-                          solidLoading = 0.12,RPM = 1.5,particleDiameter = 0.0025 #m
+        BarrKiln.__init__(self, solidFeedRate=65.0 * 1000.0 / 3600.0,#g/s
+                          primaryAir= 18.8, secondaryAir = 40.01,inGasFlow = 2.00, #L/s
+                          solidLoading = 0.12,RPM = 1.5,particleDiameter = 0.00058#m
                           )	
-        self.ID = "T1"
-        self.y_gas_off_wall = [592.996,661.964,749.991,769.207,803.748,818.617,872.36,943.188]
-        self.x_gas_off_wall = [0.0986207,0.884875,2.14983,2.50924,2.85898,3.19636,3.91636,4.95221]
-        self.y_bed =  [400.487,454.172,514.676,555.323,606.878,751.305,809.75,854.971]
-        self.x_bed =   [0.105399,0.868777,1.43746,2.13475,2.85458,4.48182,4.95272,5.49853]
-        self.y_gas_off_bed= [564.547,576.646,629.676,662.016,692.196,744.25,848.3,891.362,927.877]
-        self.x_gas_off_bed =  [0.107263,0.889111,2.15135,2.51178,2.85034,3.1906,3.91449,4.43844,4.95103] 
-        self.y_wall = [530.129,587.89,609.293,635.099,652.128,704.025,764.543,812.15]
-        self.x_wall = [1.33019,2.32165,2.68123,3.01945,3.37869,3.83824,4.39608,4.79022]
-        
+        self.ID = "T8"
+        self.y_gas_off_wall = [834.648,876.944,959.68,974.382,1010.67,1031.86,1059.12,1105.45]
+        self.x_gas_off_wall =  [0.113848,0.884104,2.14718,2.51063,2.8539,3.19637,3.91249,4.94962]
+        self.y_bed = [450.82,618.199,712.463,780.714,810.51,823.068,857.199,903.877,950.693,995.478]
+        self.x_bed =  [0.11471,0.870304,1.44066,2.13764,2.50189,2.85456,3.19772,3.90421,4.4827,4.94376]
+        self.y_gas_off_bed= [741.92,838.121,935.95,963.601,989.108,1046.18,1120.55]
+        self.x_gas_off_bed = [0.119569,0.8927,2.15658,2.51006,2.85275,3.92246,4.93976]
+        self.y_wall = [710.422,791.3,818.951,837.977,865.629,912.582,987.026]
+        self.x_wall = [1.33389,2.31954,2.67301,3.02603,3.3795,3.83,4.78331]  
+
 class BarrKilnT9(BarrKilnT4):
     def __init__(self):
         BarrKilnT4.__init__(self)
@@ -283,7 +315,19 @@ class TschengKiln(Kiln):
         self.omega =  self.RPM*2*math.pi/60.0 #Kiln rotational velocity in Radians per seconds
         self.particleDiameter = particleDiameter
         
-        #Create solid stream
+        self.x_shell = []
+        self.y_shell = []
+
+    def error_func(self, slices_dict):
+        #results[slice.Z] = [slice.gas.T(), slice.solid.T(), slice.T_wall, slice.T_ext_shell]
+        error =[]
+        error += [slices_dict[Z][0] - T for Z,T in zip(self.x_gas_off_wall, self.y_gas_off_wall)]
+        #FOR KDO We assume gas off bed (the embedded thermocouples) is the bed temperature
+        error += [slices_dict[Z][0] - T for Z, T in zip(self.x_gas_off_bed, self.y_gas_off_bed)]
+        error += [slices_dict[Z][1] - T for Z,T in zip(self.x_bed, self.y_bed)]
+        error += [slices_dict[Z][2] - T for Z,T in zip(self.x_wall, self.y_wall)]
+            
+        return error
 
 class TschengKilnA11(TschengKiln):
     def __init__(self):
@@ -1110,14 +1154,27 @@ class KDOKiln(Kiln):
         self.omega =  self.RPM*2*math.pi/60.0 #Kiln rotational velocity in Radians per seconds
         self.particleDiameter = particleDiameter
         
-        #Use the adiabatic gas temperature for the outlet, assume room temperature solid inlet, and solve
+        #Use the adiabatic gas temperature for the outlet, optimise solid inlet temperature
         self.SolveMode = True
 
+    def error_func(self, slices_dict):
+        #results[slice.Z] = [slice.gas.T(), slice.solid.T(), slice.T_wall, slice.T_ext_shell]
+        error =[]
+        error += [slices_dict[Z][0] - T for Z,T in zip(self.x_gas_off_wall, self.y_gas_off_wall)]
+        #FOR KDO, we can't fit to the gas_off_bed, its the thermocouples, and they sit somewhere between everything, typically higher than the bed but lower than the gas!
+        #error += [slices_dict[Z][1] - T for Z, T in zip(self.x_gas_off_bed, self.y_gas_off_bed)]
+        error += [slices_dict[Z][1] - T for Z,T in zip(self.x_bed, self.y_bed)]
+        error += [slices_dict[Z][2] - T for Z,T in zip(self.x_wall, self.y_wall)]
+        error += [slices_dict[Z][3] - T for Z,T in zip(self.x_shell, self.y_shell)]
+            
+        return error
         
 class KDOKilnTP21(KDOKiln):
     def __init__(self):
-        KDOKiln.__init__(self, solidFeedRate=27.0 * 1000.0 / 3600.0,#g/s # Feed solid rate
-                         primaryAir = 263 * 1000.0 / 3600.0, secondaryAir = 40 * 1000 / 3600 ,inGasFlow = 19 * 1000.0 / 3600.0, #L/s
+        KDOKiln.__init__(self, solidFeedRate=25.4 * 1000.0 / 3600.0,#g/s # Feed solid rate
+                         primaryAir = 263 * 1000.0 / 3600.0,
+                         secondaryAir = 32 * 1000 / 3600,
+                         inGasFlow = 19 * 1000.0 / 3600.0, #L/s
                          solidLoading = 0.04,RPM = 1.8,particleDiameter = 0.0025#m
         )
         self.inO2Flow = 4 * 1000.0 / 3600 #L/s
@@ -1128,90 +1185,78 @@ class KDOKilnTP21(KDOKiln):
         self.angleOfRepose = 31.0#deg
         self.incline = 0.0
         self.ID = "TP21"
-        self.y_gas_off_wall = []#[1637.7] #I think these are adiabatic values from theo?
-        self.x_gas_off_wall = []#[7.0]
-        #self.y_bed = [532,730,829,1238,1250]
-        #self.x_bed =  [0.19,1.69,3.32,6.06,6.51]
-        #self.y_gas_off_bed= [1259]
-        #self.x_gas_off_bed = [7.0]
         
+        #Optical pyrometry results from peering in the end of the kiln
         self.y_bed = [1259+273.15]
         self.x_bed =  [7.0]
-        self.y_gas_off_bed= [642+273.15,532+273.15,730+273.15,829+273.15,1238+273.15,1250+273.15]
-        self.x_gas_off_bed = [0.0,0.19,1.69,3.32,6.06,6.51]
-        
-        self.y_wall = [290+273.15,355+273.15,408+273.15,472+273.15,488+273.15,497+273.15]
-        self.x_wall = [0.19,1.69,3.32,5.0,6.06,6.51]
 
-class KDOKilnTP21r(KDOKiln):
-    def __init__(self):
-        KDOKiln.__init__(self, solidFeedRate=27.0 * 1000.0 / 3600.0,#g/s
-                         primaryAir = 263 * 1000.0 / 3600.0, secondaryAir = 40 * 1000 / 3600, inGasFlow = 19 * 1000.0 / 3600.0, #L/s
-                         solidLoading = 0.04,RPM = 1.8,particleDiameter = 0.0025#m
-        )
-        self.inO2Flow = 4 * 1000.0 / 3600 #L/s 
-        self.inSO2Flow = 23 / 60 #L/s
-        self.bedEmissivity = 0.9
-        self.shellEmissivity = 0.80
-        self.wallEmissivity = 0.85
-        self.angleOfRepose = 31.0#deg
-        self.incline = 0.0
-        self.ID = "TP21r"
-        self.y_gas_off_wall = []#[1440]
-        self.x_gas_off_wall = []#[7.2]
-        #self.y_bed = [532,730,829,1238,1250]
-        #self.x_bed =  [0.19,1.69,3.32,6.06,6.51]
-        #self.y_gas_off_bed= [1259]
-        #self.x_gas_off_bed = [7.0]
-        
-        self.y_bed = [1259+273.15]
-        self.x_bed =  [7.0]
+        # These are the embedded thermocouple measurements. They spend time in the bed and the air.
+        #The first datapoint is high (642+273.15@0.0), is it actually a gas measurement? We assume so
         self.y_gas_off_bed= [532+273.15,730+273.15,829+273.15,1238+273.15,1250+273.15]
         self.x_gas_off_bed = [0.19,1.69,3.32,6.06,6.51]
         
-        self.y_wall = [290+273.15,355+273.15,408+273.15,472+273.15,488+273.15,497+273.15]
-        self.x_wall = [0.19,1.69,3.32,5.0,6.06,6.51]
+        self.y_gas_off_wall = [642+273.15]
+        self.x_gas_off_wall = [0.0]  
+
+        #Internal wall
+        self.x_wall = []
+        self.y_wall = []
+        #External shell measurements
+        self.y_shell = [290+273.15,355+273.15,408+273.15,472+273.15,488+273.15,497+273.15]
+        self.x_shell = [0.19,1.69,3.32,5.0,6.06,6.51]
 
 class KDOKilnTP26(KDOKiln):
+    #See Theo's thesis, page 119, Table 7.16
+    #This is Data set 2
     def __init__(self):
-        KDOKiln.__init__(self, solidFeedRate=9.65 * 1000.0 / 3600.0,#g/s
-                          primaryAir= 70.0, secondaryAir = 0.0,inGasFlow = 4.9, #L/s
-                          solidLoading = 0.08,RPM = 1.8,particleDiameter = 0.0025#m
-                          )
-        self.inO2Flow = 4 * 1000.0 / 3600 #L/s ##### WRONG!!!
-        self.inSO2Flow = 23 / 60 #L/s ##### WRONG!!!
+        KDOKiln.__init__(self,
+                         solidFeedRate=25.4 * 1000.0 / 3600.0,#g/s  # NOTE: THIS IS THE WET/CO2 RICH FEED. Clinker was 9.65 kg/hr
+                         primaryAir= 252 * 1000.0 / 3600.0,
+                         secondaryAir = 0 * 1000 / 3600, #Theo gave 0)
+                         inGasFlow = 17.6 * 1000.0 / 3600.0, #L/s
+                         solidLoading = 0.08,#This is double.... why?
+                         RPM = 1.8,
+                         particleDiameter = 0.0025#m
+        )
+        self.inO2Flow = 4 * 1000.0 / 3600 #L/s ##### WRONG!!! But why?
+        self.inSO2Flow = 23 / 60 #L/s ##### WRONG!!! Not sure why I wrote this.
         self.bedEmissivity = 0.9 
         self.shellEmissivity = 0.80 
         self.wallEmissivity = 0.85   
         self.angleOfRepose = 31.0#deg
         self.incline = 0.0
         self.ID = "TP26"
-        self.y_gas_off_wall = [1765.17]
-        self.x_gas_off_wall =  [7.0]
+
+        #Optical pyrometry results from peering in the end of the kiln
         self.y_bed = [1280+273.15]
         self.x_bed =  [7.0]
         
-        #self.y_gas_off_bed= [640,751]
-        #self.x_gas_off_bed = [1.69,3.32]
-        self.y_gas_off_bed= [597+273.15,503+273.15,640+273.15,751+273.15,1262+273.15]
-        self.x_gas_off_bed = [0.0,0.19,1.69,3.32,6.51]
-        
-        self.y_wall = [275+273.15,340+273.15,352+273.15,381+273.15,386+273.15,391+273.15,414+273.15,415+273.15,463+273.15,440+273.15,498+273.15,490+273.15,443+273.15]
-        self.x_wall = [0.19,1.69,1.97,2.53,2.83,3.32,3.7,4.09,5.0,5.3,6.06,6.51,7.08]
-        #self.y_wall = [340,352,381,386,391,414,415]
-        #self.x_wall = [1.69,1.97,2.53,2.83,3.32,3.7,4.09]
+        # These are the embedded thermocouple measurements. They spend time in the bed and the air.
+        #The first datapoint is high (597+273.15@0.0), is it actually a gas measurement? We assume so
+        self.y_gas_off_bed= [503+273.15,640+273.15,751+273.15,1262+273.15]
+        self.x_gas_off_bed = [0.19,1.69,3.32,6.51]
+
+        self.y_gas_off_wall = [597+273.15] 
+        self.x_gas_off_wall = [0] 
+
+        #Internal wall
+        self.x_wall = []
+        self.y_wall = []
+        #External shell measurements
+        self.y_shell = [275+273.15,340+273.15,352+273.15,381+273.15,386+273.15,391+273.15,414+273.15,415+273.15,463+273.15,440+273.15,498+273.15,490+273.15,443+273.15]
+        self.x_shell = [0.19,1.69,1.97,2.53,2.83,3.32,3.7,4.09,5.0,5.3,6.06,6.51,7.08]
 
         
 def getExperimentalKilns():
     return [
-        BarrKilnT4(),
-        BarrKilnT8(),
+        BarrKilnT1(),
         BarrKilnT2(),
         BarrKilnT3(),
+        BarrKilnT4(),
         BarrKilnT5(),
         BarrKilnT6(),
         BarrKilnT7(),
-        BarrKilnT1(),
+        BarrKilnT8(),
         BarrKilnT9(),
         TschengKilnA11(),
         TschengKilnA12(),
@@ -1242,10 +1287,11 @@ def getExperimentalKilns():
         TschengKilnA37(),
         TschengKilnA38(),
         TschengKilnA39(),
-        TschengKilnA40(),
-        TschengKilnA41(),
-        TschengKilnA42(),
-        TschengKilnA43(),
+        # These freeze, perhaps there's an issue with the optimisation for some reason?
+        #TschengKilnA40(),
+        #TschengKilnA41(),
+        #TschengKilnA42(),
+        #TschengKilnA43(),
         TschengKilnA44(),
         TschengKilnA45(),
         TschengKilnA46(),
@@ -1257,6 +1303,6 @@ def getExperimentalKilns():
         TschengKilnA52(),
         TschengKilnA53(),
         TschengKilnA54(),
-        KDOKilnTP21(), KDOKilnTP21r(),
-        #KDOKilnTP26(),
+        KDOKilnTP21(),
+        KDOKilnTP26(),
     ]

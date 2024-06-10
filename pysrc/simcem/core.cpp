@@ -1,5 +1,6 @@
 #include <simcem/simcem.hpp>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
 namespace py = pybind11;
@@ -8,12 +9,18 @@ using namespace pybind11::literals;
 using namespace simcem;
 
 // Get all of the opaque containers defined
+PYBIND11_MAKE_OPAQUE(Components::Base);
+PYBIND11_MAKE_OPAQUE(Element::Base);
+PYBIND11_MAKE_OPAQUE(Phase::Base);
+PYBIND11_MAKE_OPAQUE(Component::Base);
+PYBIND11_MAKE_OPAQUE(MultiPhase::Base);
+
+
 typedef std::unordered_map<std::string, simcem::Element> ElementMap;
 PYBIND11_MAKE_OPAQUE(ElementMap);
 typedef std::unordered_map<std::string, simcem::Component> ComponentMap;
 PYBIND11_MAKE_OPAQUE(ComponentMap);
-typedef std::vector<simcem::Isotope> IsotopeList;
-PYBIND11_MAKE_OPAQUE(IsotopeList);
+
 typedef std::vector<simcem::Component::Property> PropertyList;
 PYBIND11_MAKE_OPAQUE(PropertyList);
 PYBIND11_MAKE_OPAQUE(std::vector<FunctionCurve::ShomateTerm>);
@@ -21,6 +28,7 @@ PYBIND11_MAKE_OPAQUE(std::vector<Bond>);
 PYBIND11_MAKE_OPAQUE(std::vector<Atom>);
 PYBIND11_MAKE_OPAQUE(std::vector<TabulatedCurve::Datum>);
 PYBIND11_MAKE_OPAQUE(simcem::Component::PropertyMap);
+PYBIND11_MAKE_OPAQUE(simcem::Components);
 
 Components init_from_dict(py::dict d) {
   Components retval;
@@ -130,16 +138,16 @@ PYBIND11_MODULE(core, m)
 {
   m.def("solveCubic", solveCubic);
 
+
   py::bind_map<ElementMap>(m, "ElementMap");
   py::bind_map<ComponentMap>(m, "ComponentMap");
-  py::bind_vector<IsotopeList>(m, "IsotopeList");
   py::bind_vector<PropertyList>(m, "PropertyList");
   py::bind_vector<std::vector<FunctionCurve::ShomateTerm>>(m, "ShomateTerms");
   py::bind_vector<std::vector<Bond>>(m, "BondList");
   py::bind_vector<std::vector<Atom>>(m, "AtomList");
   py::bind_vector<std::vector<TabulatedCurve::Datum>>(m, "TabulatedCurveList");
   py::bind_map<simcem::Component::PropertyMap>(m, "PropertyMap");
-  
+
   py::class_<simcem::Database, std::shared_ptr<simcem::Database> >(m, "Database")
     .def(py::init(&Database::create))
     .def(py::init(&Database::create_from_file))
@@ -158,7 +166,7 @@ PYBIND11_MODULE(core, m)
     .def_property_readonly("R", &Database::R)
     ;
 
-  py::class_<simcem::Isotope>(m, "Isotope")
+  py::class_<simcem::Isotope, std::shared_ptr<simcem::Isotope>>(m, "Isotope")
     .def(py::init<size_t, size_t, double, double, double, std::string, std::string, std::string>(), py::arg("Z"), py::arg("N"), py::arg("mass"), py::arg("mass_uncertainty"), py::arg("abundance"), py::arg("symbol"), py::arg("name"), py::arg("category"))
     .def_readonly("Z", &Isotope::_Z)
     .def_readonly("N", &Isotope::_N)
@@ -170,19 +178,25 @@ PYBIND11_MODULE(core, m)
     .def_readonly("category", &Isotope::_category)
     ;
   
-  py::class_<simcem::Element, simcem::Isotope, std::vector<Isotope> >(m, "Element")
-    .def(py::init<size_t, size_t, double, double, double, std::string, std::string, std::string, IsotopeList, size_t, size_t, std::string, std::string>(), py::arg("Z"), py::arg("N"), py::arg("mass"), py::arg("mass_uncertainty"), py::arg("abundance"), py::arg("symbol"), py::arg("name"), py::arg("category"), py::arg("isotopes"), py::arg("group"), py::arg("period"), py::arg("block")="", py::arg("referenceComponentID")="")
+  py::bind_vector<simcem::Element::Base, std::shared_ptr<simcem::Element::Base>>(m, "IsotopeList");
+  py::class_<simcem::Element, simcem::Isotope, simcem::Element::Base, std::shared_ptr<Element>>(m, "Element")
+    .def(py::init<size_t, size_t, double, double, double, std::string, std::string, std::string, simcem::Element::Base, size_t, size_t, std::string, std::string>(), py::arg("Z"), py::arg("N"), py::arg("mass"), py::arg("mass_uncertainty"), py::arg("abundance"), py::arg("symbol"), py::arg("name"), py::arg("category"), py::arg("isotopes"), py::arg("group"), py::arg("period"), py::arg("block")="", py::arg("referenceComponentID")="")
     .def_readwrite("referenceComponentID", &Element::_referenceComponentID)
     .def_readwrite("group", &Element::_group)
     .def_readwrite("period", &Element::_period)
     .def_readwrite("block", &Element::_block)
     ;
 
-  py::bind_map<Components, shared_ptr<Components>>(m, "Components")
+  py::bind_map<simcem::Components::Base, shared_ptr<Components::Base>>(m, "ComponentsBaseMap");
+  py::class_<Components, Components::Base, shared_ptr<Components>>(m, "Components")
     .def(py::init(&init_from_dict))
     .def("N", &Components::N)
     .def("M", &Components::M)
     .def("m", &Components::m)
+    .def("__len__", &Components::size)
+    .def("__setitem__", [](Components* c, std::string index, double val) { (*c)[index] = val; })
+    .def("__getitem__", [](Components* c, std::string index) { return (*c)[index]; })
+    .def("items", [](Components &m) { return pybind11::make_iterator(m.begin(), m.end()); }, pybind11::keep_alive<0, 1>()) /* Essential: keep list alive while iterator exists */
     .def("removeSmallComponents", &Components::removeSmallComponents)
     .def("elements", &Components::elements)
     .def("ref_elements", &Components::ref_elements)
@@ -313,9 +327,21 @@ PYBIND11_MODULE(core, m)
     .def_static("Shomate", &FunctionCurve::Shomate)
     ;
 
+  py::class_<TabulatedCurve, Curve, shared_ptr<TabulatedCurve> >(m, "TabulatedCurve")
+    .def(py::init<std::string, std::string, Objective_t, Reference_t, Objective_t, T_unit_t, Q_unit_t, E_unit_t, P_unit_t, L_unit_t>())
+    .def_readwrite("values", &TabulatedCurve::_values)
+    ;
+
+  auto PrintTabulatedCurveDatum = [](const TabulatedCurve::Datum& d) {
+    return "("+std::to_string(d.x)+", "+std::to_string(d.val)+"±"+std::to_string(d.error)+")";
+  };
+  
   py::class_<TabulatedCurve::Datum>(m, "TabulatedCurveDatum")
+    .def("__str__", PrintTabulatedCurveDatum)
+    .def("__repr__", PrintTabulatedCurveDatum)
     .def_readonly("x", &TabulatedCurve::Datum::x)
     .def_readonly("val", &TabulatedCurve::Datum::val)
+    .def_readonly("error", &TabulatedCurve::Datum::val)
     ;
   
   py::class_<Atom, shared_ptr<Atom> >(m, "Atom")
@@ -338,17 +364,11 @@ PYBIND11_MODULE(core, m)
 
   const Component::PropertyMap& (Component::*getprop_overload)() const = &Component::getProperties;
   std::vector<shared_ptr<Atom> >&  (Component::*getstruct_overload)() = &Component::getStructure;
-    
-  py::class_<Component>(m, "Component")
+  
+  py::bind_vector<Component::Base, std::shared_ptr<Component::Base>>(m, "ComponentBase");
+  py::class_<Component, Component::Base, std::shared_ptr<Component>>(m, "Component")
     .def("__str__", &xmlstring<Component>)
     .def("__repr__", &xmlstring<Component>)
-    .def("__len__", &Component::size)
-    .def("__getitem__", [](const Component &s, size_t i) {
-	if (i >= s.size()) throw py::index_error();
-	return s[i];
-      })
-    .def("__iter__", [](const Component &s) { return py::make_iterator(s.begin(), s.end()); },
-	 py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
     .def("getElements", &Component::getElements, py::return_value_policy::reference_internal)
     .def_property("formula", &Component::getFormula, &Component::setFormula, py::return_value_policy::reference_internal)
     .def("getPhase", &Component::getPhase, py::return_value_policy::reference_internal)
@@ -361,15 +381,11 @@ PYBIND11_MODULE(core, m)
     .def("mass", &Component::mass)
     .def("getAliases", &Component::getAliases, py::return_value_policy::reference_internal)
     ;
-  
-  py::class_<Phase>(m, "Phase")
-    .def("__len__", &Phase::size)
-    .def("__getitem__", [](const Phase &s, size_t i) {
-	if (i >= s.size()) throw py::index_error();
-	return s[i];
-      })
-    .def("__iter__", [](const Phase &s) { return py::make_iterator(s.begin(), s.end()); },
-	 py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
+
+  py::bind_vector<simcem::Phase::Base, std::shared_ptr<simcem::Phase::Base>>(m, "PhaseBaseVector");
+  py::class_<simcem::Phase, simcem::Phase::Base, std::shared_ptr<simcem::Phase>>(m, "Phase")
+    .def("__str__", &xmlstring<Phase>)
+    .def("__repr__", &xmlstring<Phase>)
     .def("registerIsobar", &Phase::registerIsobar)
     .def("add_alias", &Phase::add_alias)
     .def("remove_alias", &Phase::remove_alias)
@@ -379,7 +395,7 @@ PYBIND11_MODULE(core, m)
     .def_property("comments", &Phase::getComments, &Phase::setComments)
     ;
 
-  py::class_<Model, Components, PyModel<Model>, shared_ptr<Model>>(m, "Model")
+  py::class_<Model, PyModel<Model>, shared_ptr<Model>>(m, "Model")
     //Virtual functions
     .def("Y", &Model::Y)
     .def("p", &Model::p)
@@ -421,16 +437,17 @@ PYBIND11_MODULE(core, m)
     .def(py::init<shared_ptr<Model>>())
     ;
 
-  py::class_<ModelIdealGasTp, PyModel<ModelIdealGasTp>, Model, shared_ptr<ModelIdealGasTp>>(m, "ModelIdealGasTp")
+  py::class_<ModelIdealGasTp, Model, PyModel<ModelIdealGasTp>, shared_ptr<ModelIdealGasTp>>(m, "ModelIdealGasTp")
     .def(py::init<shared_ptr<Database>, Components, double, double>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5)
     ;
 
-  py::class_<ModelIdealGasTV, PyModel<ModelIdealGasTV>, Model, shared_ptr<ModelIdealGasTV>>(m, "ModelIdealGasTV")
+  py::class_<ModelIdealGasTV, Model, PyModel<ModelIdealGasTV>, shared_ptr<ModelIdealGasTV>>(m, "ModelIdealGasTV")
     .def(py::init<shared_ptr<Database>, Components, double, double>(),py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("V"))
     ;
 
   py::class_<ModelIncompressible, PyModel<ModelIncompressible>, Model, shared_ptr<ModelIncompressible>>(m, "ModelIncompressible")
     .def(py::init<shared_ptr<Database>, Components, double, double, std::string, bool>(), py::arg("db"), py::arg("components"), py::arg("T")=298.15, py::arg("p")=1e5, py::arg("type")="solid", py::arg("mixing")=false)
+    .def_property_readonly("mixingEntropy", +[](const ModelIncompressible& m) { return m.mixingEntropy(); })
     ;
 
   py::class_<ModelIncompressibleSolid, PyModel<ModelIncompressibleSolid>, Model, shared_ptr<ModelIncompressibleSolid>>(m, "ModelIncompressibleSolid")
@@ -442,7 +459,8 @@ PYBIND11_MODULE(core, m)
     ;
 
   
-  py::bind_vector<MultiPhase>(m, "MultiPhase")
+  py::bind_vector<MultiPhase::Base>(m, "MultiPhaseBase");
+  py::class_<MultiPhase, MultiPhase::Base>(m, "MultiPhase")
     .def("T", &MultiPhase::T)
     .def("N", &MultiPhase::T)
     .def("p", &MultiPhase::p)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import unittest
 import time
 
@@ -18,7 +20,10 @@ class CoreTest(unittest.TestCase):
     def check_reprloop(self, item):
         #Check the repr and constructor is correctly implemented
         r = repr(item)
-        self.assertEqual(repr(eval(r)), r)
+        try:
+            self.assertEqual(repr(eval(r)), r)
+        except Exception as e:
+            raise Exception("Failed to use a repr to regenerate the expression. The repr() result was \"" + r + "\" but it failed when eval'd") from e
         
     def test_Isotope(self):
         self.check_reprloop(self.db.getElements()["H"][0])

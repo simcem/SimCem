@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from simcem import *
 from scipy.optimize import minimize, leastsq, brenth
 
@@ -84,7 +86,7 @@ ax.plot(Z, Tsh, '-', linewidth=3)
 # Here, we're pulling some experimental data out of the library for
 # comparison against
 import simcem.KilnData
-kiln_data = simcem.KilnData.KDOKilnTP21r()
+kiln_data = simcem.KilnData.KDOKilnTP21()
 ax.plot(kiln_data.x_gas_off_wall, [x-273.15 for x in kiln_data.y_gas_off_wall], 'o')
 ax.plot(kiln_data.x_bed, [x-273.15 for x in kiln_data.y_bed], 'Dk')
 ax.plot(kiln_data.x_gas_off_bed, [x-273.15 for x in kiln_data.y_gas_off_bed], 'pg')

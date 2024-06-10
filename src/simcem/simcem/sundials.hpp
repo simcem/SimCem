@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <sundials/sundials_config.h>
 
 #ifdef SUNDIALS_PACKAGE_VERSION
@@ -30,6 +32,21 @@
 
 namespace sundials {
   namespace detail {
+    class SundialsContext {
+    public:
+      static const SUNContext& getCtx() {
+	static SundialsContext ctx;
+	return ctx.sunctx;
+      }
+
+    private:
+      SundialsContext() {	
+	SUNContext_Create(NULL, &sunctx);
+      }
+
+      SUNContext sunctx;
+    };
+    
     int check_flag(void *flagvalue, const char *funcname, int opt)
     {
       int *errflag;
@@ -63,7 +80,7 @@ namespace sundials {
 
   struct Serial_Vector {
     Serial_Vector(const long int N) {
-      _vec = N_VNew_Serial(N);
+      _vec = N_VNew_Serial(N, detail::SundialsContext::getCtx());
       if (detail::check_flag((void *)_vec, "N_VNew_Serial", 0))
 	stator_throw() << "Exit!";
       _owner = true;
@@ -105,7 +122,7 @@ namespace sundials {
     {
       std::sort(_stop_points.begin(), _stop_points.end());
       
-      _mem = IDACreate();
+      _mem = IDACreate(detail::SundialsContext::getCtx());
       if(sundials::detail::check_flag((void *)_mem, "IDACreate", 0))
 	stator_throw() << "Exit!";
 
@@ -125,15 +142,15 @@ namespace sundials {
       if (detail::check_flag(&retval, "IDADense", 1))
 	stator_throw() << "Exit!";
 #else
-      A = SUNDenseMatrix(_N, _N);
+      A = SUNDenseMatrix(_N, _N, detail::SundialsContext::getCtx());
       if (sundials::detail::check_flag((void *)A, "SUNDenseMatrix", 0))
 	stator_throw() << "Exit!";
-
-      LS = SUNDenseLinearSolver(y0, A);
+ 
+      LS = SUNLinSol_Dense(y0, A, detail::SundialsContext::getCtx());
       if(sundials::detail::check_flag((void *)LS, "SUNDenseLinearSolver", 0)) 
 	stator_throw() << "Exit!";
 
-      int retval = IDADlsSetLinearSolver(_mem, LS, A);
+      int retval = IDASetLinearSolver(_mem, LS, A);
       if(sundials::detail::check_flag(&retval, "IDADlsSetLinearSolver", 1))
 	stator_throw() << "Exit!";
 #endif

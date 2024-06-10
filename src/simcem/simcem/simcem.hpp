@@ -51,9 +51,9 @@ namespace simcem {
     each variable which must not change during optimisation).
   */
   class Components : public std::map<std::string, double> {
-    typedef std::map<std::string, double> Base;
-
   public:
+    typedef std::map<std::string, double> Base;
+    
     using Base::Base;
 
     /*! 
@@ -374,6 +374,9 @@ namespace simcem {
 
   /*! \brief Data structure for a phase of a particular molecule. */
   struct Phase : public std::vector<shared_ptr<Isobar> > {
+    typedef std::vector<shared_ptr<Isobar> > Base;
+
+
     void load_xml(Node xml) {
       for (Node inode = xml.findNode("Alias"); inode.valid(); ++inode)
 	_aliases.push_back(inode.getAttribute("Name"));
@@ -385,7 +388,7 @@ namespace simcem {
 	_comments = xml.getNode("Comments").getValue();
     }
     
-    Phase(std::string name, std::string type, Component& md):
+    Phase(std::string name, std::string type, std::shared_ptr<Component> md):
       _name(name), _type(type),
       _mol(md)
     {}
@@ -440,7 +443,7 @@ namespace simcem {
     std::string _type;
     std::string _comments;
     std::vector<std::string> _aliases;
-    Component& _mol;
+    std::shared_ptr<Component> _mol;
   };
 
   struct Atom;
@@ -514,7 +517,8 @@ namespace simcem {
   };
   
   /*! \brief Data structure for a single molecule. */
-  struct Component : public std::vector<Phase> {
+  struct Component : public std::vector<Phase>, std::enable_shared_from_this<Component> {
+    typedef std::vector<Phase> Base;
     void xml(stator::xml::Node node) const {
       stator::xml::Node xml_molecule = node.add_node("Component");
 
@@ -564,7 +568,7 @@ namespace simcem {
 	}
       }
 
-      push_back(Phase(phaseID, type, *this));
+      push_back(Phase(phaseID, type, this->shared_from_this()));
       return back();
     }
 
@@ -633,19 +637,8 @@ namespace simcem {
       _properties[type].push_back(Property(type, val, source, Tunit, Qunit, Eunit, Punit, Lunit));
     }
 
-    
-    Component(std::string ID, Components elements, const Database& db, std::string formula = ""):
-      _elements(elements),
-      _formula(formula),
-      _identifier(ID)
-    {
-      if (_formula.empty())
-	//Build a formula (assuming we have an elemental description,
-	//if not, an empty formula is fine
-	for (const auto& val: _elements)
-	  _formula = _formula + val.first + boost::lexical_cast<std::string>(val.second);
-      
-      init_mass(db);
+    [[nodiscard]] static std::shared_ptr<Component> create(std::string ID, Components elements, const Database& db, std::string formula = "") {
+      return std::shared_ptr<Component>(new Component(ID, elements, db,formula));    
     }
 
     inline
@@ -735,6 +728,21 @@ namespace simcem {
     
     std::vector<std::string> _aliases;
     std::vector<shared_ptr<Atom> > _structure;
+
+    private:
+    Component(std::string ID, Components elements, const Database& db, std::string formula = ""):
+      _elements(elements),
+      _formula(formula),
+      _identifier(ID)
+    {
+      if (_formula.empty())
+	//Build a formula (assuming we have an elemental description,
+	//if not, an empty formula is fine
+	for (const auto& val: _elements)
+	  _formula = _formula + val.first + boost::lexical_cast<std::string>(val.second);
+      
+      init_mass(db);
+    }
   };
 
   /*! \brief A database of thermophysical data required for the
@@ -745,7 +753,7 @@ namespace simcem {
     Database() {}
     
     std::unordered_map<std::string, Element> _elements;
-    std::unordered_map<std::string, Component> _components;
+    std::unordered_map<std::string, std::shared_ptr<Component>> _components;
     
   public:
     static constexpr double pi = 3.1415926535897932384626433832795029L;
@@ -769,14 +777,14 @@ namespace simcem {
     Component& registerComponent(std::string ID, Components elements, std::string formula = "") {
       auto it = _components.find(ID);
       if (it == _components.end())
-	return _components.insert(std::make_pair(ID, Component(ID, elements, *this, formula))).first->second;
+	    return *(_components.insert(std::make_pair(ID, Component::create(ID, elements, *this, formula))).first->second);
       else {
 	//Check for consistency
-	if (it->second.getElements() != elements)
+	if (it->second->getElements() != elements)
 	  stator_throw() << "Failed to register molecule " << ID << " as it already exists and has a different elemental composition!";
-	if (!formula.empty() && (it->second.getFormula() != formula))
-	  stator_throw() << "Failed to register molecule " << ID << " as its formula (" << formula << ") does not match existing formula ("<< it->second.getFormula() << ")!";
-	return it->second;
+	if (!formula.empty() && (it->second->getFormula() != formula))
+	  stator_throw() << "Failed to register molecule " << ID << " as its formula (" << formula << ") does not match existing formula ("<< it->second->getFormula() << ")!";
+	return *(it->second);
       }
     }
     
@@ -785,7 +793,7 @@ namespace simcem {
       auto it = _components.find(molID);
       if (it == _components.end())
 	stator_throw() << "Failed to find molecule " << molID;
-      return it->second;
+      return *(it->second);
     }
 
     std::string xml() const {
@@ -806,7 +814,7 @@ namespace simcem {
 
       auto xml_components = root.add_node("Components");
       for (const auto& molecule: _components)
-	molecule.second.xml(xml_components);
+	molecule.second->xml(xml_components);
 
       os << doc;
       return os.str();
@@ -870,7 +878,7 @@ namespace simcem {
       return _elements;
     }
 
-    const std::unordered_map<std::string, Component>& getComponents() const {
+    const std::unordered_map<std::string, std::shared_ptr<Component>>& getComponents() const {
       return _components;
     }
   };
@@ -1075,6 +1083,8 @@ namespace simcem {
       Components(components),
       _db(db), _type(type)
     {}
+
+    virtual ~Model() {}
 
     virtual Objective_t Y(size_t idx) const = 0;
 
@@ -1800,6 +1810,7 @@ namespace simcem {
       return os.str()+" }";
     }
       
+    bool mixingEntropy() const {return _mixingEntropy; }
   protected:
     bool _mixingEntropy;
   };
@@ -1821,9 +1832,9 @@ namespace simcem {
   /*! \brief A container for a set of phases.
    */
   class MultiPhase : public std::vector<shared_ptr<Model> > {
-  protected:
-    typedef std::vector<shared_ptr<Model> > Base;
   public:
+    typedef std::vector<shared_ptr<Model> > Base;
+
     using Base::Base;
 
     double T() const {

@@ -1,5 +1,15 @@
 *~
 .directory
 build
-pysrc
-dist/simcem-0.0.2-py3.10-linux-x86_64.egg
+docs
+\#*
+*.pyc
+*.egg-info
+*.egg
+*.so
+*.pdf
+*.png
+*.html
+*.xlsx
+*.pkl
+.venv

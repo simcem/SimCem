@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import unittest
 import time
 
@@ -47,8 +49,10 @@ class CoreTest(unittest.TestCase):
             stop_points_py.sort()
             stop_points = DoubleList()
             for v in stop_points_py:
+                if v == 0:
+                    continue #Don't include zero, as its the start point anyway
                 stop_points.append(v)
-        
+            print(stop_points)
             if hasattr(kiln_data, 'SolveMode'):
                 init_slice = Slice(MassToMoles(self.db, kiln_data.solidIn),
                                    (kiln_data.primaryAir + kiln_data.secondaryAir) / 1000.0, #m^3/s

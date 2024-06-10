@@ -4,3 +4,6 @@
 [submodule "src/stator"]
 	path = src/stator
 	url = https://github.com/toastedcrumpets/stator.git
+[submodule "submodule/sundials"]
+	path = submodule/sundials
+	url = https://github.com/LLNL/sundials.git
