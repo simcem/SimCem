@@ -30,6 +30,7 @@ jobs:
           python -m pip install .
       - name: Test simcem
         run: |
+          source .venv/bin/activate
           pytest tests
   build_sdist:
     name: Build sdist
