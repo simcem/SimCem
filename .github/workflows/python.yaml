@@ -26,6 +26,7 @@ jobs:
           python -m pip install pytest matplotlib
       - name: Install simcem
         run: |
+          source .venv/bin/activate
           python -m pip install .
       - name: Test simcem
         run: |
@@ -49,7 +50,9 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
       - name: Check metadata
-        run: twine check dist/*
+        run: |
+          source .venv/bin/activate
+          twine check dist/*
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
