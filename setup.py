@@ -87,7 +87,7 @@ setup(
         'numpy',
         'scipy',
     ],
-    build_requires = [
+    setup_requires = [
         "cmake",
         "git"
     ],

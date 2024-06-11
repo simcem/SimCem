@@ -1,2 +1,5 @@
+[build-system]
+requires = ["setuptools", "wheel", "cmake"]
+
 [tool.pytest.ini_options]
 addopts = "--ignore-glob src/pybind11/* --ignore-glob submodule/*"
