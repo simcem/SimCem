@@ -3,7 +3,7 @@ name: Wheels
 env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
-    yum install -y epel-release
+    yum install -y epel-release &&
     yum install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake
   CIBW_TEST_REQUIRES: pytest
   CIBW_BEFORE_BUILD: python3 -m pip install cmake
