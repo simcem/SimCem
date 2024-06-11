@@ -89,7 +89,6 @@ setup(
     ],
     setup_requires = [
         "cmake",
-        "git"
     ],
     test_suite='tests',
     cmdclass=dict(build_ext=CMakeBuild),
