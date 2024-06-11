@@ -86,6 +86,10 @@ setup(
         'numpy',
         'scipy',
     ],
+    build_requires = [
+        "cmake",
+        "git"
+    ],
     test_suite='tests',
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
