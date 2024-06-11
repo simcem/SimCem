@@ -6,7 +6,7 @@ env:
     yum install -y epel-release &&
     yum install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake
   CIBW_TEST_REQUIRES: pytest
-  CIBW_BEFORE_BUILD: python3 -m pip install cmake
+  CIBW_BEFORE_BUILD: python -m pip install cmake
 
 on:
   workflow_dispatch:
