@@ -1,5 +1,11 @@
 name: Wheels
 
+env:
+  CIBW_BEFORE_ALL_LINUX: >
+    yum install -y sundials-devel ipopt-devel boost-devel eigen3-devel cmake
+  CIBW_TEST_REQUIRES: pytest
+  CIBW_BEFORE_BUILD: python -m pip install cmake
+  
 on:
   workflow_dispatch:
     inputs:
