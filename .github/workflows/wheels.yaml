@@ -1,11 +1,12 @@
 name: Wheels
 
 env:
+  SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
-    yum install -y sundials-devel ipopt-devel boost-devel eigen3-devel cmake
+    yum install -y sundials-devel coin-or-ipopt-devel boost-devel eigen3-devel cmake
   CIBW_TEST_REQUIRES: pytest
   CIBW_BEFORE_BUILD: python -m pip install cmake
-  
+
 on:
   workflow_dispatch:
     inputs:
@@ -21,9 +22,6 @@ on:
 concurrency:
   group: wheels-${{ github.head_ref }}
   cancel-in-progress: true
-
-env:
-  SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
 
 jobs:
   build_sdist:
