@@ -1,0 +1,64 @@
+name: Python tests
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Don't clone history
+          submodules: true # Update submodules
+          
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Dependencies
+        run: |
+          sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev 
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install pytest matplotlib
+      - name: Install simcem
+        run: |
+          source .venv/bin/activate
+          python -m pip install .
+      - name: Test simcem
+        run: |
+          source .venv/bin/activate
+          pytest tests
+#  build_sdist:
+#    name: Build sdist
+#    runs-on: ubuntu-24.04
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          submodules: true
+#      - name: Setup Python
+#        uses: actions/setup-python@v5
+#      - name: Dependencies
+#        run: |
+#          sudo apt-get install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev cmake
+#          python -m venv .venv
+#          source .venv/bin/activate
+#          python -m pip install scikit-build twine
+#      - name: Build sdist
+#        run: python setup.py sdist
+#      - name: Check metadata
+#        run: |
+#          source .venv/bin/activate
+#          twine check dist/*
+#      - name: Upload Artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          path: dist/*.tar.gz
+#          retention-days: 2
+
