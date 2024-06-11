@@ -165,8 +165,8 @@ class CoreTest(unittest.TestCase):
             sys.append(A)
             sys.append(B)
             sys.equilibrate()
-            self.assertAlmostEqual(sys[0]["H2O"], 0, places=10)
-            self.assertAlmostEqual(sys[1]["H2O"], 2, places=10)
+            self.assertAlmostEqual(sys[0].components["H2O"], 0, places=10)
+            self.assertAlmostEqual(sys[1].components["H2O"], 2, places=10)
 ##            if not reactive:
 ##                self.assertAlmostEqual(-sys.lagrangians["H2O"]/sys[1].chemPot("H2O"), 1, places=9)
 
@@ -180,8 +180,8 @@ class CoreTest(unittest.TestCase):
         sys.append(A)
         sys.append(B)
         sys.equilibrate(sys.p(), 0.5 * (GasH+LiqH))
-        self.assertAlmostEqual(sys[0]["H2O"], 0.5, places=2)
-        self.assertAlmostEqual(sys[1]["H2O"], 0.5, places=2)
+        self.assertAlmostEqual(sys[0].components["H2O"], 0.5, places=2)
+        self.assertAlmostEqual(sys[1].components["H2O"], 0.5, places=2)
 ##        lagrangian = sys[0].s("H2O")-sys[0].h("H2O")/sys[0].T()
 ##        self.assertAlmostEqual(sys.lagrangians["H2O"]/lagrangian, 1, places=7)
             

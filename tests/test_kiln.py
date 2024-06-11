@@ -210,3 +210,5 @@ class CoreTest(unittest.TestCase):
 #print("UA_shell_amb",1.0/(kiln.R_wall_shell(slice) + 1.0 / (1.0 / kiln.R_sh_ext_rd(slice) + 1.0 / kiln.R_sh_ext_cv(slice))))
 #exit()
 
+if __name__ == '__main__':
+    unittest.main()
