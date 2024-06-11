@@ -4,10 +4,15 @@ env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
     yum install -y epel-release &&
-    yum install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake
+    yum install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake &&
+    cd / &&  mkdir boost && cd boost &&
+    wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
+    tar xf boost_1_76_0.tar.bz2 &&
+    cd {package}
   CIBW_TEST_REQUIRES: pytest
   CIBW_BEFORE_BUILD: python -m pip install cmake
-
+  CIBW_ENVIRONMENT_LINUX: BOOST_ROOT=/boost
+  
 on:
   workflow_dispatch:
     inputs:
@@ -100,9 +105,10 @@ jobs:
             arch: auto64
             build: "pp*"
 
-          - os: windows-2019
-            arch: auto32
-            build: "*"
+          # Seems to be an issue with config for 32 bit windows
+          #- os: windows-2019
+          #  arch: auto32
+          #  build: "*"
 
           - os: ubuntu-latest
             arch: auto64
