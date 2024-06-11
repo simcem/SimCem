@@ -83,6 +83,7 @@ setup(
         CMakeExtension('simcem.core')
     ],
     install_requires = [
+        'cmake',
         'numpy',
         'scipy',
     ],
