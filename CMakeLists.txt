@@ -15,14 +15,20 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/submodule/sundials EXCLUDE_FROM_ALL)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(IPOPT 3.11.9 REQUIRED)
 find_package(Eigen3 3.2 REQUIRED)
-find_package(Boost REQUIRED)
 
-message(STATUS "CMakeLists: Checking ${IPOPT_INCLUDE_DIRS}")
+# if cmake version is higher than 3.20 we can use the new boost configuration
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
+endif()
+
+find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
+
+#message(STATUS "CMakeLists: Checking ${IPOPT_INCLUDE_DIRS}")
 
 include_directories(src/stator src/simcem src submodule/sundials/include)
 add_library(simcem STATIC src/simcem/simcem/simcem.cpp)
 
-target_include_directories(simcem PUBLIC src/simcem/ ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+target_include_directories(simcem PUBLIC src/simcem/ ${EIGEN3_INCLUDE_DIR} /usr/include/coin ${Boost_INCLUDE_DIRS})
 target_link_libraries(simcem PUBLIC PRIVATE ${IPOPT_LIBRARIES} ${IPOPT_LINK_FLAGS})
 set_target_properties(simcem PROPERTIES POSITION_INDEPENDENT_CODE True)
 
