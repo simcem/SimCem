@@ -1,2 +1,4 @@
 { pkgs ? import <nixpkgs> {} }:
-pkgs.callPackage ./derivation.nix {}
+{
+ simcem = pkgs.callPackage ./derivation.nix {};
+}
