@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 #set(CMAKE_BUILD_TYPE "Debug")
 
 MESSAGE(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
@@ -25,7 +25,7 @@ find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_f
 
 #message(STATUS "CMakeLists: Checking ${IPOPT_INCLUDE_DIRS}")
 
-include_directories(src/stator src/simcem src submodule/sundials/include)
+include_directories(src/stator src/simcem src submodule/sundials/include ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${IPOPT_INCLUDE_DIRS})
 add_library(simcem STATIC src/simcem/simcem/simcem.cpp)
 
 target_include_directories(simcem PUBLIC src/simcem/ ${EIGEN3_INCLUDE_DIR} /usr/include/coin ${Boost_INCLUDE_DIRS})

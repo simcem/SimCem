@@ -1,5 +1,11 @@
 [build-system]
-requires = ["setuptools", "wheel", "cmake"]
+requires = [
+  "scikit-build-core>=0.10", 
+  "setuptools",
+  "numpy", 
+  "pytest",
+]
+build-backend = "scikit_build_core.setuptools.build_meta"
 
 [tool.pytest.ini_options]
 addopts = "--ignore-glob src/pybind11/* --ignore-glob submodule/*"

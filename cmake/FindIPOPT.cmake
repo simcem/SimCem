@@ -69,12 +69,15 @@ if(NOT WIN32)
       set(IPOPT_DEFINITIONS "")
     endif()
 
+  else()
+    message(STATUS "PkgConfig not found, trying to find IPOPT using IPOPT_DIR")
   endif()
 
   set(IPOPT_LINK_FLAGS "")
 
   # If pkg-config fails, try to find the package using IPOPT_DIR
   if(NOT _PC_IPOPT_FOUND)
+    message(STATUS "PkgConfig not found, trying to find IPOPT using IPOPT_DIR")
     set(IPOPT_DIR_TEST $ENV{IPOPT_DIR})
     if(IPOPT_DIR_TEST)
       set(IPOPT_DIR $ENV{IPOPT_DIR} CACHE PATH "Path to IPOPT build directory")
