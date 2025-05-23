@@ -885,7 +885,7 @@ namespace simcem {
 	Q_{w\to sh} = Q_{g\to w}^{rd} + Q_{g\to w}^{cv} - Q_{w\to s}^{rd} - Q_{w\to s}^{cd}
 	\f]
       */
-      void solve_SS_inert(Slice slice_in, std::vector<realtype> stop_points, bool store_intermediate) {
+      void solve_SS_inert(Slice slice_in, std::vector<sunrealtype> stop_points, bool store_intermediate) {
 	using namespace sundials;
 	
 	//For debugging, output all kiln settings
@@ -928,7 +928,7 @@ namespace simcem {
 	    slice._Z = Z;
 	  }
 
-	  static int resrob(realtype Z, N_Vector T_, N_Vector Tprime_, N_Vector residuals_, void *user_data) {
+	  static int resrob(sunrealtype Z, N_Vector T_, N_Vector Tprime_, N_Vector residuals_, void *user_data) {
 	    Serial_Vector T(T_), Tprime(Tprime_), residuals(residuals_);
 	    SolverData& data = *((SolverData*)user_data);
 	    
@@ -984,7 +984,7 @@ namespace simcem {
 	auto stop_it = stop_points.begin();
 	
 	while (stop_it != stop_points.end()) {
-	  const realtype Znext = solver.solve(*stop_it, T, Tprime, IDA_ONE_STEP);
+	  const sunrealtype Znext = solver.solve(*stop_it, T, Tprime, IDA_ONE_STEP);
 
 	  while (Znext > *stop_it) {
 	    solver.interpolate(*stop_it, T_interp, 0);

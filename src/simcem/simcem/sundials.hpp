@@ -1,34 +1,9 @@
 #include <memory>
 
 #include <sundials/sundials_config.h>
-
-#ifdef SUNDIALS_PACKAGE_VERSION
-# define SUNDIALS_2
-#else
-# ifndef SUNDIALS_VERSION_MAJOR
-#  error Could not detect the sundials version via SUNDIALS_PACKAGE_VERSION or SUNDIALS_VERSION_MAJOR macros
-# endif
-# if SUNDIALS_VERSION_MAJOR >= 3
-#  define SUNDIALS_3
-# else
-#  error Unsupported version of sundials!
-# endif
-#endif
-
 #include <ida/ida.h>
-
-#ifdef SUNDIALS_2
-# include <ida/ida_dense.h>
-# include <sundials/sundials_dense.h>
-# include <sundials/sundials_types.h>
-#endif
-#ifdef SUNDIALS_3
-# include <ida/ida_direct.h>
-# include <sunmatrix/sunmatrix_dense.h>
-# include <sunlinsol/sunlinsol_dense.h>
-#endif
-
 #include <nvector/nvector_serial.h>
+#include <sunlinsol/sunlinsol_dense.h>
 
 namespace sundials {
   namespace detail {
@@ -41,7 +16,7 @@ namespace sundials {
 
     private:
       SundialsContext() {	
-	SUNContext_Create(NULL, &sunctx);
+	SUNContext_Create(SUN_COMM_NULL, &sunctx);
       }
 
       SUNContext sunctx;
@@ -96,11 +71,11 @@ namespace sundials {
 	N_VDestroy_Serial(_vec);
     }
     
-    realtype& operator[](const size_t i) {
+    sunrealtype& operator[](const size_t i) {
       return N_VGetArrayPointer_Serial(_vec)[i];
     }
 
-    const realtype& operator[](const size_t i) const {
+    const sunrealtype& operator[](const size_t i) const {
       return N_VGetArrayPointer_Serial(_vec)[i];
     }
     
@@ -113,12 +88,10 @@ namespace sundials {
   };
 
   struct IDA {
-#ifndef SUNDIALS_2
     SUNMatrix A;
     SUNLinearSolver LS;
-#endif
 
-    IDA(realtype t0, IDAResFn resrob, N_Vector y0, N_Vector yprime0)
+    IDA(sunrealtype t0, IDAResFn resrob, N_Vector y0, N_Vector yprime0)
     {
       std::sort(_stop_points.begin(), _stop_points.end());
       
@@ -137,11 +110,6 @@ namespace sundials {
     }
 
     void denseSolver(N_Vector y0) {
-#ifdef SUNDIALS_2
-      int retval = IDADense(_mem, _N);
-      if (detail::check_flag(&retval, "IDADense", 1))
-	stator_throw() << "Exit!";
-#else
       A = SUNDenseMatrix(_N, _N, detail::SundialsContext::getCtx());
       if (sundials::detail::check_flag((void *)A, "SUNDenseMatrix", 0))
 	stator_throw() << "Exit!";
@@ -153,31 +121,28 @@ namespace sundials {
       int retval = IDASetLinearSolver(_mem, LS, A);
       if(sundials::detail::check_flag(&retval, "IDADlsSetLinearSolver", 1))
 	stator_throw() << "Exit!";
-#endif
     }
 
     ~IDA() {
       IDAFree(&_mem);
-#ifndef SUNDIALS_2
       SUNLinSolFree(LS);
       SUNMatDestroy(A);
-#endif
     }
 
-    void reinit(realtype t0, N_Vector y0, N_Vector yprime0) {
+    void reinit(sunrealtype t0, N_Vector y0, N_Vector yprime0) {
       _stop_points.clear();
       int retval = IDAReInit(_mem, t0, y0, yprime0);
       if(detail::check_flag(&retval, "IDAReInit", 1))
 	stator_throw() << "Exit!";
     }
 
-    void setTol(realtype rel, N_Vector abs) {
+    void setTol(sunrealtype rel, N_Vector abs) {
       int retval = IDASVtolerances(_mem, rel, abs);
       if (detail::check_flag(&retval, "IDASVtolerances", 1))
 	stator_throw() << "Exit!";
     }
 
-    void setTol(realtype rel, realtype abs) {
+    void setTol(sunrealtype rel, sunrealtype abs) {
       int retval = IDASStolerances(_mem, rel, abs);
       if (detail::check_flag(&retval, "IDASStolerances", 1))
 	stator_throw() << "Exit!";
@@ -197,25 +162,25 @@ namespace sundials {
       IDASetId(_mem, Id);
     }
 
-    void calcIC(int icopt, realtype tout1) {
+    void calcIC(int icopt, sunrealtype tout1) {
       int retval = IDACalcIC(_mem, icopt, tout1);
       if (detail::check_flag(&retval, "IDACalcIC", 1))
 	stator_throw() << "Exit!";
     }
 
-    void add_stop_point(realtype tstop) {
+    void add_stop_point(sunrealtype tstop) {
       _stop_points.push_back(tstop);
     }
     
-    realtype solve(realtype tfinal, N_Vector y, N_Vector yp, int mode) {
-      realtype t;
+    sunrealtype solve(sunrealtype tfinal, N_Vector y, N_Vector yp, int mode) {
+      sunrealtype t;
       int retval = IDASolve(_mem, tfinal, &t, y, yp, mode);
       if(detail::check_flag(&retval, "IDASolve", 1))
 	stator_throw() << "Exit!";      
       return t;
     }
     
-    void interpolate(realtype tinterp, N_Vector y, long int order = 0) {
+    void interpolate(sunrealtype tinterp, N_Vector y, long int order = 0) {
       int retval = IDAGetDky(_mem, tinterp, order, y);
       if(detail::check_flag(&retval, "IDAGetDky", 1))
 	stator_throw() << "Exit!";
@@ -230,7 +195,7 @@ namespace sundials {
     void* _mem;
     long int _N;
 
-    std::vector<realtype> _stop_points;
+    std::vector<sunrealtype> _stop_points;
   };
   
 }

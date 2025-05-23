@@ -1,11 +1,38 @@
+[project]
+name = "simcem"
+version = "1.0.0"
+description="SimCem, the thermodynamics/process engineering package"
+readme = "README.md"
+authors = [
+  { name = "Marcus Bannerman", email = "m.bannerman@gmail.com" },
+]
+requires-python = ">=3.9"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
 [build-system]
 requires = [
   "scikit-build-core>=0.10", 
-  "setuptools",
-  "numpy", 
-  "pytest",
+  "pybind11",
 ]
-build-backend = "scikit_build_core.setuptools.build_meta"
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+wheel.packages = ["pysrc/simcem"]
+wheel.install-dir = "simcem"
+
+[project.optional-dependencies]
+test = ["pytest"]
 
 [tool.pytest.ini_options]
 addopts = "--ignore-glob src/pybind11/* --ignore-glob submodule/*"
