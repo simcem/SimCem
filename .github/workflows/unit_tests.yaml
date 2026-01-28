@@ -1,8 +1,11 @@
 name: Python tests
 
 on:
-  - push
-  - pull_request
+  push:
+  pull_request:
+  schedule:
+    # Run monthly on the 1st at 00:00 UTC
+    - cron: '0 0 1 * *'
 
 jobs:
   unit-tests:
