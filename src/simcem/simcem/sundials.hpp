@@ -5,6 +5,10 @@
 #include <nvector/nvector_serial.h>
 #include <sunlinsol/sunlinsol_dense.h>
 
+#ifndef SUN_COMM_NULL
+#define SUN_COMM_NULL NULL
+#endif
+
 namespace sundials {
   namespace detail {
     class SundialsContext {
