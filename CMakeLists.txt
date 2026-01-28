@@ -27,10 +27,10 @@ link_libraries(${IPOPT_LIBRARIES} ${IPOPT_LINK_FLAGS} ${Boost_LIBRARIES} ${SUNDI
 add_library(simcem STATIC src/simcem/simcem/simcem.cpp)
 set_target_properties(simcem PROPERTIES POSITION_INDEPENDENT_CODE True)
 
-python_add_library(core MODULE pysrc/simcem/core.cpp)
+pybind11_add_module(core MODULE pysrc/simcem/core.cpp)
 target_link_libraries(core PUBLIC simcem)
 
-python_add_library(kiln MODULE pysrc/simcem/kiln.cpp)
+pybind11_add_module(kiln MODULE pysrc/simcem/kiln.cpp)
 target_link_libraries(kiln PRIVATE simcem SUNDIALS::ida)
 
 #target_include_directories(kiln PUBLIC ${SUNDIALS_INCLUDE_DIRS})
