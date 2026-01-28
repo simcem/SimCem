@@ -3,6 +3,8 @@ name: Python tests
 on:
   - push
   - pull_request
+  schedule:
+    - cron: "0 8 1 * *"
 
 jobs:
   unit-tests:
