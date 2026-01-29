@@ -3,18 +3,9 @@ name: Wheels
 env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
-    dnf install -y epel-release &&
-    dnf config-manager --set-enabled powertools &&
-    dnf install -y sundials-devel boost-devel eigen3-devel cmake MUMPS-devel lapack-devel wget &&
-    cd / &&  git clone https://github.com/coin-or/Ipopt.git && cd Ipopt && mkdir build && cd build &&
-    ../configure --with-mumps-cflags="-I/usr/include/MUMPS/" --with-mumps-lflags="-ldmumps" &&
-    make -j4 && make install &&
-    cd / &&  
-    wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
-    tar xf boost_1_76_0.tar.bz2 && mv boost_1_76_0 /boost
+    dnf install -y perl-IPC-Cmd zip kernel-headers perl-FindBin perl-lib perl-Time-Piece autoconf-archive
   CIBW_TEST_REQUIRES: pytest
-  CIBW_BEFORE_BUILD: python -m pip install cmake
-  CIBW_ENVIRONMENT_LINUX: BOOST_ROOT=/boost
+  #CIBW_BEFORE_BUILD: python -m pip install cmake
   
 on:
   workflow_dispatch:
@@ -27,7 +18,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/wheels.yml
-#  push:
+  push:
 
 concurrency:
   group: wheels-${{ github.head_ref }}
