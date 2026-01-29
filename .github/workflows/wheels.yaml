@@ -3,8 +3,9 @@ name: Wheels
 env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
-    yum install -y epel-release &&
-    yum install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake &&
+    dnf install -y epel-release &&
+    dnf config-manager --set-enabled powertools &&
+    dnf install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake &&
     cd / &&  mkdir boost && cd boost &&
     wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
     tar xf boost_1_76_0.tar.bz2 &&
