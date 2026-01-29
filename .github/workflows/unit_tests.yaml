@@ -31,7 +31,7 @@ jobs:
       - name: Build the simcem wheel
         run: |
           source .venv/bin/activate
-          python -m pip build .
+          python -m pip wheel . --wheel-dir dist/
       - name: Repair the wheel
         run: |
           source .venv/bin/activate
