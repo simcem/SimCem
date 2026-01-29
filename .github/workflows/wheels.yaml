@@ -27,7 +27,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/wheels.yml
-  push:
+#  push:
 
 concurrency:
   group: wheels-${{ github.head_ref }}
