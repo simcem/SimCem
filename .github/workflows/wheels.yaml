@@ -5,7 +5,10 @@ env:
   CIBW_BEFORE_ALL_LINUX: >
     dnf install -y epel-release &&
     dnf config-manager --set-enabled powertools &&
-    dnf install -y sundials-devel coin-or-Ipopt-devel boost-devel eigen3-devel cmake &&
+    dnf install -y sundials-devel boost-devel eigen3-devel cmake MUMPS-devel lapack-devel &&
+    cd / &&  git clone https://github.com/coin-or/Ipopt.git && cd Ipopt && mkdir build && cd build &&
+    ../configure --with-mumps-cflags="-I/usr/include/MUMPS/" --with-mumps-lflags="-ldmumps" &&
+    make -j4 && make install &&
     cd / &&  mkdir boost && cd boost &&
     wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
     tar xf boost_1_76_0.tar.bz2 &&
