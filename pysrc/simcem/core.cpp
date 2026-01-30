@@ -153,6 +153,7 @@ PYBIND11_MODULE(core, m)
     .def(py::init(&Database::create_from_file))
     .def("load", &Database::load)
     .def("xml", &Database::xml)
+    .def("setHSLlib", &Database::setHSLlib)
     .def("getComponent", &Database::getComponent, py::return_value_policy::reference)
     .def("getComponents", &Database::getComponents, py::return_value_policy::reference)
     .def("getElement", &Database::getElement, py::return_value_policy::reference)
@@ -489,7 +490,6 @@ PYBIND11_MODULE(core, m)
     .def("__str__", &System::str)
     .def("equilibrate", &System::equilibrate, py::arg("Y1init") =HUGE_VAL, py::arg("Y2init") =HUGE_VAL)
     .def("setEnsemble", &System::setEnsemble)
-    .def_static("setlibHSLpath", &System::setlibHSLpath)
     ;
   
   m.def("NASA_transport", simcem::trans::NASA_transport);

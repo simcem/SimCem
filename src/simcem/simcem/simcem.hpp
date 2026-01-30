@@ -814,8 +814,13 @@ namespace simcem
     std::unordered_map<std::string, Element> _elements;
     std::unordered_map<std::string, std::shared_ptr<Component>> _components;
 
+    std::string hsllib = "libhsl.so";
+
   public:
     static constexpr double pi = 3.1415926535897932384626433832795029L;
+
+    std::string getHSLlib() const { return hsllib; }
+    void setHSLlib(std::string lib) { hsllib = lib; }
 
     // Taken from CODATA 2014 https://physics.nist.gov/cuu/Constants/
     double avogadro = 6.022140857e23;
@@ -2096,13 +2101,6 @@ namespace simcem
       IPopt
     };
 
-    static std::string libHSLpath;
-
-    static void setlibHSLpath(const std::string &path)
-    {
-      libHSLpath = path;
-    }
-
     static Objective_t naturalPotential(Objective_t Y1, Objective_t Y2)
     {
       if ((Y1 == Objective_t::p) && (Y2 == Objective_t::T))
@@ -2195,7 +2193,7 @@ namespace simcem
     */
     System(Objective_t Y1 = Objective_t::p, Objective_t Y2 = Objective_t::T, bool reactive = false,
            Optimiser_t alg = Optimiser_t::IPopt, double molarConstraintTol = 1e-8, size_t max_eval = 100,
-           bool debug = true, bool scale_problem = true, bool rank_reduce_material_constraints = true) : _Y1(Y1), _Y2(Y2),
+           bool debug = false, bool scale_problem = true, bool rank_reduce_material_constraints = true) : _Y1(Y1), _Y2(Y2),
                                                                                                           _alg(alg), _reactive(reactive), _molarConstraintTol(molarConstraintTol),
                                                                                                           _max_eval(max_eval), _debug(debug), _scale_problem(scale_problem),
                                                                                                           _rank_reduce_material_constraints(rank_reduce_material_constraints)
@@ -2645,7 +2643,7 @@ namespace simcem
           app.Options()->SetNumericValue("bound_relax_factor", 0);
           app.Options()->SetStringValue("hessian_approximation", "limited-memory");
           app.Options()->SetStringValue("expect_infeasible_problem", "yes");
-          app.Options()->SetStringValue("hsllib", libHSLpath.c_str());
+          app.Options()->SetStringValue("hsllib", this->front()->db()->getHSLlib().c_str());
 
           if (_scale_problem)
             app.Options()->SetStringValue("nlp_scaling_method", "gradient-based");

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from simcem import *
+from simcem.kiln import *
 from scipy.optimize import minimize, leastsq, brenth
 import unittest
 

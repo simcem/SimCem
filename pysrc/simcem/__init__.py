@@ -2,8 +2,6 @@ from simcem.core import *
 import simcem.kiln as kiln
 import os
 
-System.setlibHSLpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libhsl.so'))
-
 # Write some python repr and str implementations
 Isotope.__repr__ = lambda s: 'Isotope(symbol='+repr(s.symbol)+', name='+repr(s.name)+', Z='+repr(s.Z)+', N='+repr(s.N)+', mass='+repr(s.mass)+', mass_uncertainty='+repr(s.mass_uncertainty)+', abundance='+repr(s.abundance)+', category='+repr(s.category)+')'
 Isotope.__str__ = lambda s: 'Isotope(symbol='+repr(s.symbol)+', N='+repr(s.N)+', mass='+repr(s.mass)+')'
@@ -21,4 +19,6 @@ Components.as_dict = lambda s: dict(s.items())
 
 def defaultDatabase():
     import os
-    return Database(os.path.join(os.path.dirname(__file__), 'free_database.xml'))
+    db = Database(os.path.join(os.path.dirname(__file__), 'free_database.xml'))
+    db.setHSLlib(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libhsl.so'))
+    return db

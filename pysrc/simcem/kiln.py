@@ -1,7 +1,5 @@
 import simcem.core as core
 from simcem.kiln_core import *
-import os
-core.System.setlibHSLpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libhsl.so'))
 
 def solve(self, db, fuelgas, rawmix, fuelSolid=None):
     Tamb=298.15
@@ -16,10 +14,10 @@ def solve(self, db, fuelgas, rawmix, fuelSolid=None):
     
     # Now we can plug the resulting combusted gas, and the inlet kiln solid into the kiln model.
     inlet_solid = core.ModelIncompressible(db, rawmix, Tamb, 1.01325e5, "solid", True)
-    init_slice = core.Slice(gas, inlet_solid, 0)
+    init_slice = Slice(gas, inlet_solid, 0)
     
     # Make a list of points to calculate the kiln conditions at
-    stop_points = core.DoubleList()
+    stop_points = DoubleList()
     import numpy as np
     #Starting at 0.1, take steps of 0.1 until we reach the kiln length
     #Can't start at zero, this would cause an error with the solver.
@@ -43,3 +41,5 @@ def solve(self, db, fuelgas, rawmix, fuelSolid=None):
     self.getSlices().clear()
     self.solve_SS_inert(init_slice=init_slice, stop_points=stop_points, store_intermediate=True)
     return 
+
+Kiln.solve = solve

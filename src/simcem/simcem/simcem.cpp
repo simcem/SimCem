@@ -10,8 +10,6 @@ namespace simcem {
   constexpr const char* const P_unit_t::strings[];
   constexpr const char* const L_unit_t::strings[];
 
-  std::string System::libHSLpath = "libhsl.so";
-
   namespace detail {    
     std::tuple<std::string, std::string, std::string> tokenizeComponentID(std::string ID, std::string reqSrc, std::string reqPhase) {
       //Try parsing the ID to detect a src at the very end
