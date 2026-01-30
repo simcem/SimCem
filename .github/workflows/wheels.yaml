@@ -5,8 +5,7 @@ env:
   CIBW_BEFORE_ALL_LINUX: >
     dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive
   CIBW_TEST_REQUIRES: pytest
-  #CIBW_BEFORE_BUILD: python -m pip install cmake
-  
+    
 on:
   workflow_dispatch:
     inputs:
@@ -44,39 +43,6 @@ jobs:
         with:
           path: dist/*
           name: wheels-sdist
-
-  #build_arch_wheels:
-  #  name: ${{ matrix.python }} on ${{ matrix.arch }}
-  #  runs-on: ubuntu-22.04
-  #  strategy:
-  #    matrix:
-  #      python: [38, 39, 310, 311, 312]
-  #      arch: [aarch64]
-  #  steps:
-  #    - uses: actions/checkout@v4
-  #      with:
-  #        fetch-depth: 0
-  #        submodules: true
-#
-  #    - uses: docker/setup-qemu-action@v3.0.0
-  #      with:
-  #        platforms: all
-#
-  #    - uses: pypa/cibuildwheel@v2.18
-  #      env:
-  #        CIBW_BUILD: cp${{ matrix.python }}-manylinux_*
-  #        CIBW_ARCHS: ${{ matrix.arch }}
-#
-  #    - name: Verify clean directory
-  #      run: git diff --exit-code
-  #      shell: bash
-#
-  #    - name: Upload wheels
-  #      uses: actions/upload-artifact@v4
-  #      with:
-  #        path: wheelhouse/*
-  #        name: wheel-aarch-${{ strategy.job-index }}
-
   build_wheels:
     name: ${{ matrix.build }} ${{ matrix.arch }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -84,32 +50,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
-            arch: auto64
-            build: "*"
-
-          - os: macos-14
-            arch: auto64
-            build: "*"
-
-          - os: windows-2019
-            arch: auto64
-            build: "cp*"
-
-          - os: windows-2019
-            arch: auto64
-            build: "pp*"
-
-          # Seems to be an issue with config for 32 bit windows
+          #- os: macos-13
+          #  arch: auto64
+          #  build: "*"
+          #- os: macos-14
+          #  arch: auto64
+          #  build: "*"
           #- os: windows-2019
           #  arch: auto32
           #  build: "*"
-
+          #- os: windows-2019
+          #  arch: auto64
+          #  build: "cp*"
           - os: ubuntu-latest
             arch: auto64
             build: "*manylinux*"
-
-          # Disabled until we find out how to get ipopt/boost/eigen on musllinux
           #- os: ubuntu-latest
           #  arch: auto64
           #  build: "*musllinux*"
@@ -137,30 +92,26 @@ jobs:
 
   upload_all:
     name: Upload if release
-    needs: [build_wheels, build_sdist] # build_arch_wheels,
+    needs: [build_wheels, build_sdist] 
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     environment:
       name: pypi
-      url: https://pypi.org/p/boost-histogram
+      url: https://pypi.org/p/simcem
     permissions:
       id-token: write
       attestations: write
       contents: read
-
     steps:
       - uses: actions/download-artifact@v4
         with:
           pattern: wheels-*
           merge-multiple: true
           path: dist
-
       - name: List all files
         run: ls -lh dist
-
       - name: Generate artifact attestation for sdist and wheels
-        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d # v1.1.2
+        uses: actions/attest-build-provenance@v1
         with:
-          subject-path: "dist/boost_histogram-*"
-
+          subject-path: "dist/simcem-*"
       - uses: pypa/gh-action-pypi-publish@release/v1
