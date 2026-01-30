@@ -11,7 +11,7 @@ typedef std::vector<simcem::kiln::Slice> SliceList;
 PYBIND11_MAKE_OPAQUE(SliceList);
 PYBIND11_MAKE_OPAQUE(std::vector<double>);
 
-PYBIND11_MODULE(kiln, m)
+PYBIND11_MODULE(kiln_core, m)
 {
   py::bind_vector<SliceList>(m, "SliceList");
   py::bind_vector<std::vector<double>>(m, "DoubleList");
