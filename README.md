@@ -1,5 +1,12 @@
 # SimCem thermodynamic and process simulation package
 
+
+# 
+
+```
+ apt install cmake curl git unzip zip ninja-build g++ gcc make gfortran autoconf libtool python3-dev autoconf-archive
+```
+
 This package uses the [stator Comptational Algebra System
 (CAS)](https://github.com/toastedcrumpets/stator) to treat
 thermodynamics in an equation-oriented way. This is important in
@@ -36,7 +43,7 @@ sundials, and ipopt for this to succeed. You can get these on Ubuntu
 using the following command:
 
 ```
-sudo apt-get install libeigen3-dev libsundials-dev coinor-libipopt-dev libboost-all-dev
+sudo apt-get install libeigen3-dev libsundials-dev coinor-libipopt-dev libboost-all-dev pkg-config
 ```
 
 # Installation on Windows

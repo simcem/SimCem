@@ -17,14 +17,13 @@ jobs:
         with:
           fetch-depth: 0 # Don't clone history
           submodules: true # Update submodules
-          
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
-          sudo apt install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev 
+          sudo apt install cmake curl git unzip zip ninja-build g++ gcc make gfortran autoconf libtool python3-dev autoconf-archive pkg-config
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install pytest matplotlib
@@ -32,14 +31,6 @@ jobs:
         run: |
           source .venv/bin/activate
           python -m pip wheel . --wheel-dir dist/
-      - name: Repair the wheel
-        run: |
-          source .venv/bin/activate
-          python -m pip install wheel
-          python -m pip install auditwheel
-          for whl in dist/*.whl; do
-            auditwheel repair "$whl" --wheel-dir dist/
-          done
       - name: Install simcem wheel
         run: |
           source .venv/bin/activate
@@ -48,11 +39,6 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest tests
-      - name: Upload wheel artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: dist/*.whl
-          retention-days: 2
 #  build_sdist:
 #    name: Build sdist
 #    runs-on: ubuntu-24.04

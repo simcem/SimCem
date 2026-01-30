@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "coin-or-ipopt",
+    "sundials",
+    "eigen3",
+    "boost-filesystem",
+    "boost-program-options",
+    "boost-test",
+    "boost-math",
+    "pybind11"
+  ]
+}
