@@ -419,7 +419,9 @@ namespace simcem {
 	try {
 	  sys.equilibrate();
 	} catch (std::exception& e) {
-	  std::cout << "Failed to equilibrate initial gas " << _gas->str() << std::endl;
+	  std::cout << "Failed to equilibrate initial gas " << _gas->str() 
+	  	<< " with error:\n" << e.what()
+	  	<< std::endl;
 	}
 
 	_solid = simcem::shared_ptr<simcem::ModelIncompressible>(new simcem::ModelIncompressible(db, solid, 298.15, 1.01325e5, "solid"));

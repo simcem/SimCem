@@ -4,7 +4,7 @@ import unittest
 import time
 
 from simcem import *
-from simcem.kiln import *
+#from simcem.kiln import *
 from scipy.optimize import minimize, leastsq, brenth
 import simcem.KilnData
 import pylab as plt

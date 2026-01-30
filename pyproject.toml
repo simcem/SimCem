@@ -39,4 +39,4 @@ wheel.install-dir = "simcem"
 test = ["pytest"]
 
 [tool.pytest.ini_options]
-addopts = "--ignore-glob src/pybind11/* --ignore-glob submodule/*"
+addopts = "--ignore-glob build/* --ignore-glob submodule/*"

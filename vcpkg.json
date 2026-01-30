@@ -6,7 +6,6 @@
     "boost-filesystem",
     "boost-program-options",
     "boost-test",
-    "boost-math",
-    "pybind11"
+    "boost-math"
   ]
 }

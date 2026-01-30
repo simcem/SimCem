@@ -2,5 +2,11 @@
 	path = src/stator
 	url = https://github.com/toastedcrumpets/stator.git
 [submodule "vcpkg"]
-	path = vcpkg
+	path = submodule/vcpkg
 	url = https://github.com/microsoft/vcpkg
+[submodule "submodule/ThirdParty-HSL"]
+	path = submodule/ThirdParty-HSL
+	url = https://github.com/coin-or-tools/ThirdParty-HSL.git
+[submodule "submodule/pybind11"]
+	path = submodule/pybind11
+	url = https://github.com/pybind/pybind11.git

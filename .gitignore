@@ -13,3 +13,4 @@ docs
 *.xlsx
 *.pkl
 .venv
+coinhsl*

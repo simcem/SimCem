@@ -489,6 +489,7 @@ PYBIND11_MODULE(core, m)
     .def("__str__", &System::str)
     .def("equilibrate", &System::equilibrate, py::arg("Y1init") =HUGE_VAL, py::arg("Y2init") =HUGE_VAL)
     .def("setEnsemble", &System::setEnsemble)
+    .def_static("setlibHSLpath", &System::setlibHSLpath)
     ;
   
   m.def("NASA_transport", simcem::trans::NASA_transport);

@@ -1,5 +1,8 @@
 from simcem.core import *
 from simcem.kiln import *
+import os
+
+System.setlibHSLpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libhsl.so'))
 
 # Write some python repr and str implementations
 Isotope.__repr__ = lambda s: 'Isotope(symbol='+repr(s.symbol)+', name='+repr(s.name)+', Z='+repr(s.Z)+', N='+repr(s.N)+', mass='+repr(s.mass)+', mass_uncertainty='+repr(s.mass_uncertainty)+', abundance='+repr(s.abundance)+', category='+repr(s.category)+')'
