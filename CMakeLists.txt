@@ -63,9 +63,6 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
-#include_directories(${PROJECT_SOURCE_DIR}/src/stator)
-#include_directories(src/simcem/ ${EIGEN3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${IPOPT_INCLUDE_DIRS} ${SUNDIALS_INCLUDE_DIRS} src/stator src/)
-
 add_library(simcem STATIC src/simcem/simcem/simcem.cpp)
 set_target_properties(simcem PROPERTIES POSITION_INDEPENDENT_CODE True)
 target_link_libraries(simcem PUBLIC Boost::filesystem Boost::program_options PkgConfig::IPOPT PkgConfig::EIGEN3)
@@ -74,10 +71,10 @@ target_include_directories(simcem PUBLIC ${PROJECT_SOURCE_DIR}/src/stator ${PROJ
 pybind11_add_module(core MODULE pysrc/simcem/core.cpp)
 target_link_libraries(core PUBLIC simcem) 
 
-pybind11_add_module(kiln MODULE pysrc/simcem/kiln.cpp)
-target_link_libraries(kiln PRIVATE simcem SUNDIALS::ida)
+pybind11_add_module(kiln_core MODULE pysrc/simcem/kiln_core.cpp)
+target_link_libraries(kiln_core PRIVATE simcem SUNDIALS::ida)
 
-install(TARGETS kiln core DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS kiln_core core DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 enable_testing()
 add_executable(simcem_example tests/simcem_example.cpp)
