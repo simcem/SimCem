@@ -23,7 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
-          sudo apt install cmake curl git unzip zip ninja-build g++ gcc make gfortran autoconf libtool python3-dev autoconf-archive pkg-config
+          sudo apt install cmake curl git unzip zip ninja-build g++ gcc make gfortran autoconf libtool python3-dev autoconf-archive pkg-config liblapack-dev libblas-dev
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install pytest matplotlib
