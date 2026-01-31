@@ -99,3 +99,8 @@ Open/free software
 * [OpenCalphad](http://www.opencalphad.com/) a fortran CALPHAD approach
 * [BurnMan](https://geodynamics.github.io/burnman/): A nice thermodynamic modelling package for geological processes (so it has pressure-dependence in solids).
 * [NASA CEA](https://www1.grc.nasa.gov/research-and-engineering/ceaweb/topicshome/) is a rocketry simulation program and the source of much of the thermodynamic data used in the simcem database. 
+
+Closed software
+* FactSage with the GTOx database (Highly recommended for minor element exploration)
+* Kilnsimu uses FactSage (A professional kiln simulator)
+* Thermocalc
