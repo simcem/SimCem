@@ -28,6 +28,8 @@ jobs:
           source .venv/bin/activate
           python -m pip install pytest matplotlib
       - name: Build the simcem wheel
+        env:
+          COINHSL_DOWNLOAD_URL: ${{ secrets.COINHSL_DOWNLOAD_URL }}
         run: |
           source .venv/bin/activate
           python -m pip wheel . --wheel-dir dist/
@@ -39,31 +41,4 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest tests
-#  build_sdist:
-#    name: Build sdist
-#    runs-on: ubuntu-24.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#        with:
-#          submodules: true
-#      - name: Setup Python
-#        uses: actions/setup-python@v5
-#      - name: Dependencies
-#        run: |
-#          sudo apt-get install libsundials-dev coinor-libipopt-dev libboost-all-dev libeigen3-dev cmake
-#          python -m venv .venv
-#          source .venv/bin/activate
-#          python -m pip install scikit-build twine
-#      - name: Build sdist
-#        run: python setup.py sdist
-#      - name: Check metadata
-#        run: |
-#          source .venv/bin/activate
-#          twine check dist/*
-#      - name: Upload Artifacts
-#        uses: actions/upload-artifact@v4
-#        with:
-#          path: dist/*.tar.gz
-#          retention-days: 2
 

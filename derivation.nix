@@ -15,6 +15,7 @@ python3.pkgs.buildPythonPackage rec {
     pkg-config
     cmake
     ninja
+    gfortran
   ];
     
   # Runtime dependencies for the package

@@ -14,3 +14,4 @@ docs
 *.pkl
 .venv
 coinhsl*
+result
