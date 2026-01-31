@@ -3,7 +3,7 @@ name: Wheels
 env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
   CIBW_BEFORE_ALL_LINUX: >
-    dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive lapack-devel
+    dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive lapack-devel || apt install -y zip perl autoconf-archive liblapack-dev
   CIBW_TEST_REQUIRES: pytest
     
 on:
@@ -50,12 +50,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            arch: auto64
-            build: "*"
-          - os: macos-15-intel
-            arch: auto64
-            build: "*"
+          # Cannot build on macOS due to broken intel-MKL support
+          #- os: macos-latest
+          #  arch: auto64
+          #  build: "*"
+          #- os: macos-15-intel
+          #  arch: auto64
+          #  build: "*"
           - os: windows-latest
             arch: auto64
             build: "cp*"

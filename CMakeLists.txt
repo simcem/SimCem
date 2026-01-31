@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_TOOLCHAIN_FILE ./submodule/vcpkg/scripts/buildsystems/vcpkg.cmake)
+
+# If building under nix, then do not use vcpkg
+if(DEFINED ENV{NIX_BUILD_TOP})
+  message(STATUS "NIX_BUILD_TOP is defined, not using vcpkg")
+else()
+  # Set vcpkg toolchain file
+  set(CMAKE_TOOLCHAIN_FILE ./submodule/vcpkg/scripts/buildsystems/vcpkg.cmake)
+endif()
+
 MESSAGE(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
 project(simcem)
 
