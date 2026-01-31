@@ -50,25 +50,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: macos-13
-          #  arch: auto64
-          #  build: "*"
-          #- os: macos-14
-          #  arch: auto64
-          #  build: "*"
-          #- os: windows-2019
-          #  arch: auto32
-          #  build: "*"
-          #- os: windows-2019
-          #  arch: auto64
-          #  build: "cp*"
+          - os: macos-latest
+            arch: auto64
+            build: "*"
+          - os: macos-15-intel
+            arch: auto64
+            build: "*"
+          - os: windows-latest
+            arch: auto64
+            build: "cp*"
           - os: ubuntu-latest
             arch: auto64
             build: "*manylinux*"
-          #- os: ubuntu-latest
-          #  arch: auto64
-          #  build: "*musllinux*"
-
+          - os: ubuntu-latest
+            arch: auto64
+            build: "*musllinux*"
     steps:
       - uses: actions/checkout@v4
         with:
