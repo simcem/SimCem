@@ -5,7 +5,7 @@ env:
   CIBW_BEFORE_ALL_LINUX: >
     dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive lapack-devel \
       || apt install -y zip perl autoconf-archive liblapack-dev \
-      || apk add zip perl autoconf-archive lapack-dev
+      || apk add zip perl autoconf-archive lapack-dev ninja-build
   CIBW_TEST_REQUIRES: pytest
     
 on:
