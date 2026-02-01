@@ -5,7 +5,9 @@ env:
   CIBW_BEFORE_ALL_LINUX: >
     dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive lapack-devel \
       || apt install -y zip perl autoconf-archive liblapack-dev \
-      || apk add build-base curl git g++ make pkgconfig sudo unzip zip perl autoconf-archive lapack-dev ninja-build ninja-is-really-ninja
+      || ( \
+      apk add --no-cache cmake ninja-build ninja-is-really-ninja --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main  && \
+      apk add build-base curl git g++ make pkgconfig sudo unzip zip perl autoconf-archive lapack-dev )
   CIBW_TEST_REQUIRES: pytest
     
 on:
