@@ -1,15 +1,13 @@
 name: Wheels
-
 env:
   SETUPTOOLS_SCM_PRETEND_VERSION: ${{ github.event.inputs.overrideVersion }}
+  # This script attempts to install prerequisites for building wheels on Linux variants
+  # First is CentOS/Fedora (dnf), second is Debian/Ubuntu (apt), third is Alpine (apk)
   CIBW_BEFORE_ALL_LINUX: >
     dnf install -y perl-IPC-Cmd zip kernel-headers perl autoconf-archive lapack-devel \
       || apt install -y zip perl autoconf-archive liblapack-dev \
-      || ( \
-      apk add --no-cache cmake ninja-build ninja-is-really-ninja --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main  && \
-      apk add build-base curl git g++ make pkgconfig sudo unzip zip perl autoconf-archive lapack-dev )
+      || apk add build-base curl git g++ make pkgconfig sudo unzip zip perl autoconf-archive lapack-dev cmake ninja-build ninja-is-really-ninja
   CIBW_TEST_REQUIRES: pytest
-    
 on:
   workflow_dispatch:
     inputs:
@@ -23,11 +21,13 @@ on:
       - .github/workflows/wheels.yml
   push:
 
+# If a new commit is pushed, cancel this in-progress wheel building
 concurrency:
   group: wheels-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
+  # Build the source distribution for pypi upload
   build_sdist:
     name: Build SDist
     runs-on: ubuntu-22.04
@@ -36,7 +36,6 @@ jobs:
         with:
           fetch-depth: 0 # Don't clone history
           submodules: true # Update submodules
-
       - name: Build SDist
         run: pipx run build --sdist
 
@@ -47,6 +46,7 @@ jobs:
         with:
           path: dist/*
           name: wheels-sdist
+  # Build the binary distributions (wheels) for multiple OS/arch combinations
   build_wheels:
     name: ${{ matrix.build }} ${{ matrix.arch }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -67,9 +67,11 @@ jobs:
           - os: ubuntu-latest
             arch: auto64
             build: "*manylinux*"
-          - os: ubuntu-latest
-            arch: auto64
-            build: "*musllinux*"
+          # Cannot build musllinux wheels on GitHub Actions at this time
+          # see https://github.com/microsoft/vcpkg/issues/21218
+          #- os: ubuntu-latest
+          #  arch: auto64
+          #  build: "*musllinux*"
     steps:
       - uses: actions/checkout@v4
         with:
