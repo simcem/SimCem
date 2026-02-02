@@ -20,7 +20,7 @@ pkg_check_modules(EIGEN3 REQUIRED IMPORTED_TARGET GLOBAL eigen3)
 if(POLICY CMP0167)
   cmake_policy(SET CMP0167 NEW) #  Use the new boost configuration
 endif()
-find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework math)
+find_package(Boost 1.70.0 REQUIRED system filesystem program_options unit_test_framework)
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(SUNDIALS REQUIRED COMPONENTS ida)
 
