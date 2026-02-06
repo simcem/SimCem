@@ -381,6 +381,7 @@ PYBIND11_MODULE(core, m)
     .def("registerProperty", &Component::registerProperty, py::arg("type"), py::arg("source"), py::arg("val"), py::arg("TUnit")=T_unit_t(T_unit_t::K), py::arg("QUnit")=Q_unit_t(Q_unit_t::mol), py::arg("EUnit")=E_unit_t(E_unit_t::J), py::arg("PUnit")=P_unit_t(P_unit_t::Pa), py::arg("LUnit")=L_unit_t(L_unit_t::m))
     .def("mass", &Component::mass)
     .def("getAliases", &Component::getAliases, py::return_value_policy::reference_internal)
+    .def("getID", &Component::getID)
     ;
 
   py::bind_vector<simcem::Phase::Base, std::shared_ptr<simcem::Phase::Base>>(m, "PhaseBaseVector");
