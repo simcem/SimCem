@@ -2,10 +2,10 @@
 # To install `nix-env -u -f default.nix`
 # To develop `nix-shell` (will build the shell with dependencies)
 # To test build `nix-build`
-{ pkgs, python3, ipopt, eigen, boost, sundials, lapack, blas }:
+{ self, pkgs, python3, ipopt, eigen, boost, sundials, lapack, blas }:
 python3.pkgs.buildPythonPackage rec {
   name = "simcem";
-  src = ./.;
+  src = self;
   pyproject = true;
 
   dontUseCmakeConfigure = true;
