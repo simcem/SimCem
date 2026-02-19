@@ -5,7 +5,7 @@
 { pkgs, python3, ipopt, eigen, boost, sundials, lapack, blas }:
 python3.pkgs.buildPythonPackage rec {
   name = "simcem";
-  src = self;
+  src = ./.;
   pyproject = true;
 
   dontUseCmakeConfigure = true;
